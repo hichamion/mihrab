@@ -1,0 +1,24 @@
+rules_version = '2';
+
+// Mihrab — Cloud Storage security rules.
+// Private documents (visa, certificates) are readable and writable by their owner only.
+// Admins can review them from the Firebase console.
+// Profile photos are NOT stored here (they are small compressed images inside Firestore).
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /private/{userId}/{allPaths=**} {
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 5 * 1024 * 1024
+        && (request.resource.contentType == 'application/pdf'
+            || request.resource.contentType.matches('image/(jpeg|png|webp)'));
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

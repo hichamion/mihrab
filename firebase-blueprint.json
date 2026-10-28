@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Account created after the first Google/Facebook sign-in. Role cannot be changed by the user; 'verified' is set by an admin.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "provider": { "type": "string", "enum": ["google", "facebook"] },
+        "role": { "type": "string", "enum": ["imam", "mosque"] },
+        "verified": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "privacyAcceptedAt": { "type": "string" }
+      },
+      "required": ["uid", "role", "displayName", "privacyAcceptedAt"]
+    },
+    "ImamProfile": {
+      "title": "ImamProfile",
+      "description": "Public imam profile (no contact details). Document id = owner uid.",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string" },
+        "name": { "type": "string" },
+        "age": { "type": "integer" },
+        "country": { "type": "string" },
+        "hasVisa": { "type": "string", "enum": ["yes", "no"] },
+        "visaDetails": { "type": "string" },
+        "hasCerts": { "type": "string", "enum": ["yes", "no"] },
+        "degree": { "type": "string" },
+        "riwaya": { "type": "string" },
+        "languages": { "type": "string" },
+        "germanLevel": { "type": "string" },
+        "youtubeUrl": { "type": "string" },
+        "cvText": { "type": "string" },
+        "availabilityState": { "type": "string", "enum": ["available_now", "busy_ramadan", "paused"] },
+        "ramadanNote": { "type": "string" },
+        "availableAfterDate": { "type": "string" },
+        "photo": { "type": "string", "description": "Small JPEG data URL or empty" },
+        "visaFilePath": { "type": "string" },
+        "certsFilePath": { "type": "string" },
+        "approvalStatus": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "isVerified": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["ownerUid", "name", "age", "country", "riwaya", "availabilityState", "approvalStatus"]
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Private contact details stored separately (imamContacts / mosqueContacts).",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string" },
+        "contactPerson": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "email": { "type": "string" }
+      },
+      "required": ["ownerUid"]
+    },
+    "MosqueJob": {
+      "title": "MosqueJob",
+      "description": "Mosque / association job ad (no contact details).",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string" },
+        "mosqueName": { "type": "string" },
+        "legalName": { "type": "string" },
+        "country": { "type": "string" },
+        "city": { "type": "string" },
+        "fullAddress": { "type": "string" },
+        "lookingType": { "type": "string" },
+        "riwayaRequired": { "type": "string" },
+        "activeState": { "type": "string", "enum": ["active", "closed"] },
+        "requirements": { "type": "array", "items": { "type": "string" } },
+        "details": { "type": "string" },
+        "salaryAndBenefits": { "type": "string" },
+        "housingProvided": { "type": "boolean" },
+        "approvalStatus": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["ownerUid", "mosqueName", "country", "city", "activeState", "approvalStatus"]
+    }
+  },
+  "firestore": {
+    "/admins/{uid}": { "description": "Create manually in the console to grant admin rights. Empty document is enough." },
+    "/users/{uid}": { "schema": { "$ref": "#/entities/UserProfile" } },
+    "/imams/{uid}": { "schema": { "$ref": "#/entities/ImamProfile" } },
+    "/imamContacts/{imamId}": { "schema": { "$ref": "#/entities/Contact" } },
+    "/mosques/{mosqueId}": { "schema": { "$ref": "#/entities/MosqueJob" } },
+    "/mosqueContacts/{mosqueId}": { "schema": { "$ref": "#/entities/Contact" } },
+    "/applications/{mosqueId}_{imamUid}": { "description": "Imam application to a mosque ad" },
+    "/messages/{id}": { "description": "Internal messages, readable by the two participants only" },
+    "/reports/{id}": { "description": "Reports, readable by admins only" }
+  }
+}

@@ -1,0 +1,254 @@
+rules_version = '2';
+
+// Mihrab — Firestore security rules.
+//
+// Principles:
+//  * Admin rights come ONLY from a document admins/{uid} that you create manually
+//    in the Firebase console. No e-mail addresses are hard-coded.
+//  * Users can never change their own role, verification or approval status.
+//  * Imam contact details are readable only by the owner, admins and VERIFIED mosques
+//    (a mosque account becomes verified when an admin approves one of its mosques).
+//  * Messages are readable only by their two participants.
+//
+// The queries in src/lib/db.ts (usePlatformData) are written to match these rules.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(me()));
+    }
+    function hasProfile() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(me()));
+    }
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(me())).data;
+    }
+    function isImamUser() { return hasProfile() && myProfile().role == 'imam'; }
+    function isMosqueUser() { return hasProfile() && myProfile().role == 'mosque'; }
+    function isVerifiedMosque() { return isMosqueUser() && myProfile().get('verified', false) == true; }
+    function str(v, max) { return v is string && v.size() <= max; }
+    function nonEmpty(v, max) { return str(v, max) && v.size() > 0; }
+    function incoming() { return request.resource.data; }
+    function changedKeys() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // ---------- admins (create these documents manually in the console) ----------
+    match /admins/{userId} {
+      allow read: if signedIn() && me() == userId;
+      allow write: if false;
+    }
+
+    // ---------- users ----------
+    match /users/{userId} {
+      allow read: if signedIn() && (me() == userId || isAdmin());
+      allow create: if signedIn() && me() == userId
+        && incoming().keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'provider', 'role', 'verified', 'createdAt', 'privacyAcceptedAt'])
+        && incoming().uid == userId
+        && incoming().role in ['imam', 'mosque']
+        && incoming().get('verified', false) == false
+        && nonEmpty(incoming().displayName, 120)
+        && str(incoming().email, 200)
+        && str(incoming().privacyAcceptedAt, 40);
+      // Owners may edit their name/photo, never role/verified. Admins may set "verified".
+      allow update: if (isAdmin() && changedKeys().hasOnly(['verified']))
+        || (signedIn() && me() == userId
+            && !changedKeys().hasAny(['uid', 'role', 'verified', 'createdAt'])
+            && nonEmpty(incoming().displayName, 120));
+      allow delete: if isAdmin() || (signedIn() && me() == userId);
+    }
+
+    // ---------- imams ----------
+    function validImam(d) {
+      return d.keys().hasOnly(['ownerUid', 'name', 'age', 'country', 'hasVisa', 'visaDetails', 'hasCerts', 'degree',
+                               'riwaya', 'languages', 'germanLevel', 'youtubeUrl', 'cvText', 'availabilityState',
+                               'ramadanNote', 'availableAfterDate', 'photo', 'visaFilePath', 'visaFileName',
+                               'certsFilePath', 'certsFileName', 'approvalStatus', 'isVerified', 'createdAt', 'updatedAt'])
+        && nonEmpty(d.name, 120)
+        && d.age is int && d.age >= 18 && d.age <= 90
+        && nonEmpty(d.country, 120)
+        && d.hasVisa in ['yes', 'no']
+        && d.hasCerts in ['yes', 'no']
+        && str(d.visaDetails, 500)
+        && str(d.degree, 300)
+        && nonEmpty(d.riwaya, 60)
+        && str(d.languages, 300)
+        && str(d.germanLevel, 10)
+        && str(d.youtubeUrl, 300)
+        && str(d.cvText, 5000)
+        && d.availabilityState in ['available_now', 'busy_ramadan', 'paused']
+        && str(d.ramadanNote, 300)
+        && str(d.availableAfterDate, 100)
+        && str(d.photo, 200000)
+        && d.approvalStatus in ['pending', 'approved', 'rejected']
+        && d.isVerified is bool;
+    }
+
+    match /imams/{imamId} {
+      // get: resource == null allows checking whether a document (e.g. my own profile) exists yet.
+      allow get: if resource == null
+        || resource.data.approvalStatus == 'approved'
+        || (signedIn() && resource.data.ownerUid == me())
+        || isAdmin();
+      allow list: if resource.data.approvalStatus == 'approved'
+        || (signedIn() && resource.data.ownerUid == me())
+        || isAdmin();
+      // An imam account may create exactly one profile, whose id is its uid, always "pending".
+      allow create: if (isAdmin() && validImam(incoming()))
+        || (isImamUser() && imamId == me()
+            && incoming().ownerUid == me()
+            && incoming().approvalStatus == 'pending'
+            && incoming().isVerified == false
+            && validImam(incoming()));
+      allow update: if (isAdmin() && validImam(incoming()))
+        || (signedIn() && resource.data.ownerUid == me()
+            && !changedKeys().hasAny(['ownerUid', 'approvalStatus', 'isVerified', 'createdAt'])
+            && validImam(incoming()));
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerUid == me());
+    }
+
+    match /imamContacts/{imamId} {
+      allow get: if signedIn() && (resource == null
+        || resource.data.ownerUid == me()
+        || isAdmin()
+        || isVerifiedMosque());
+      allow list: if isAdmin();
+      allow create, update: if signedIn()
+        && incoming().keys().hasOnly(['ownerUid', 'phone', 'whatsapp', 'email'])
+        && str(incoming().phone, 40) && str(incoming().whatsapp, 40) && str(incoming().email, 200)
+        && (isAdmin()
+            || (incoming().ownerUid == me()
+                && getAfter(/databases/$(database)/documents/imams/$(imamId)).data.ownerUid == me()));
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerUid == me());
+    }
+
+    // ---------- mosques ----------
+    function validMosque(d) {
+      return d.keys().hasOnly(['ownerUid', 'mosqueName', 'legalName', 'country', 'city', 'fullAddress', 'lookingType',
+                               'riwayaRequired', 'activeState', 'requirements', 'details', 'salaryAndBenefits',
+                               'housingProvided', 'approvalStatus', 'createdAt', 'updatedAt'])
+        && nonEmpty(d.mosqueName, 150)
+        && str(d.legalName, 200)
+        && nonEmpty(d.country, 100)
+        && nonEmpty(d.city, 100)
+        && str(d.fullAddress, 300)
+        && str(d.lookingType, 150)
+        && str(d.riwayaRequired, 60)
+        && d.activeState in ['active', 'closed']
+        && d.requirements is list && d.requirements.size() <= 20
+        && str(d.details, 5000)
+        && str(d.salaryAndBenefits, 500)
+        && d.housingProvided is bool
+        && d.approvalStatus in ['pending', 'approved', 'rejected'];
+    }
+
+    match /mosques/{mosqueId} {
+      // get: resource == null allows checking whether a document (e.g. my own profile) exists yet.
+      allow get: if resource == null
+        || resource.data.approvalStatus == 'approved'
+        || (signedIn() && resource.data.ownerUid == me())
+        || isAdmin();
+      allow list: if resource.data.approvalStatus == 'approved'
+        || (signedIn() && resource.data.ownerUid == me())
+        || isAdmin();
+      allow create: if (isAdmin() && validMosque(incoming()))
+        || (isMosqueUser()
+            && incoming().ownerUid == me()
+            && incoming().approvalStatus == 'pending'
+            && validMosque(incoming()));
+      allow update: if (isAdmin() && validMosque(incoming()))
+        || (signedIn() && resource.data.ownerUid == me()
+            && !changedKeys().hasAny(['ownerUid', 'approvalStatus', 'createdAt'])
+            && validMosque(incoming()));
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerUid == me());
+    }
+
+    match /mosqueContacts/{mosqueId} {
+      // Any registered imam or mosque may contact a mosque.
+      allow get: if signedIn() && (resource == null
+        || resource.data.ownerUid == me()
+        || isAdmin()
+        || hasProfile());
+      allow list: if isAdmin();
+      allow create, update: if signedIn()
+        && incoming().keys().hasOnly(['ownerUid', 'contactPerson', 'phone', 'whatsapp', 'email'])
+        && str(incoming().contactPerson, 120) && str(incoming().phone, 40)
+        && str(incoming().whatsapp, 40) && str(incoming().email, 200)
+        && (isAdmin()
+            || (incoming().ownerUid == me()
+                && getAfter(/databases/$(database)/documents/mosques/$(mosqueId)).data.ownerUid == me()));
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerUid == me());
+    }
+
+    // ---------- applications ----------
+    // Document id = "{mosqueId}_{imamUid}" so an imam can apply only once per mosque.
+    match /applications/{appId} {
+      allow read: if signedIn() && (resource.data.imamUid == me()
+        || resource.data.mosqueOwnerUid == me()
+        || isAdmin());
+      allow create: if isImamUser()
+        && appId == incoming().mosqueId + '_' + me()
+        && incoming().imamUid == me()
+        && incoming().imamId == me()
+        && incoming().status == 'pending'
+        && str(incoming().note, 2000)
+        && get(/databases/$(database)/documents/imams/$(me())).data.approvalStatus == 'approved'
+        && get(/databases/$(database)/documents/mosques/$(incoming().mosqueId)).data.ownerUid == incoming().mosqueOwnerUid
+        && get(/databases/$(database)/documents/mosques/$(incoming().mosqueId)).data.approvalStatus == 'approved';
+      // Only the mosque owner (or an admin) can change the status, and nothing else.
+      allow update: if isAdmin()
+        || (signedIn() && resource.data.mosqueOwnerUid == me()
+            && changedKeys().hasOnly(['status'])
+            && incoming().status in ['pending', 'accepted', 'interview_scheduled', 'declined']);
+      allow delete: if isAdmin() || (signedIn() && resource.data.imamUid == me());
+    }
+
+    // ---------- messages ----------
+    match /messages/{msgId} {
+      allow read: if signedIn() && (me() in resource.data.participants
+        || (isAdmin() && resource.data.receiverUid == 'admin'));
+      allow create: if signedIn()
+        && incoming().keys().hasOnly(['participants', 'senderUid', 'senderType', 'senderName', 'receiverUid',
+                                      'receiverType', 'receiverName', 'subject', 'content', 'sentAt', 'isRead',
+                                      'category', 'relatedMosqueId', 'relatedImamId'])
+        && incoming().senderUid == me()
+        && incoming().participants == [me(), incoming().receiverUid]
+        && incoming().receiverUid != me()
+        && incoming().isRead == false
+        && nonEmpty(incoming().subject, 200)
+        && nonEmpty(incoming().content, 5000)
+        && str(incoming().senderName, 150)
+        && str(incoming().receiverName, 150)
+        && incoming().category in ['interview', 'application', 'admin_alert', 'direct_inquiry']
+        && ((incoming().senderType == 'admin' && isAdmin())
+            || (incoming().senderType != 'admin' && hasProfile() && incoming().senderType == myProfile().role));
+      // Only the receiver can mark a message as read.
+      allow update: if signedIn()
+        && (resource.data.receiverUid == me() || (resource.data.receiverUid == 'admin' && isAdmin()))
+        && changedKeys().hasOnly(['isRead']);
+      allow delete: if signedIn() && (me() in resource.data.participants
+        || (isAdmin() && resource.data.receiverUid == 'admin'));
+    }
+
+    // ---------- reports ----------
+    match /reports/{reportId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if signedIn()
+        && incoming().keys().hasOnly(['targetType', 'targetId', 'targetName', 'reason', 'details', 'reporterUid',
+                                      'reporterRole', 'reportedAt', 'status'])
+        && incoming().reporterUid == me()
+        && incoming().status == 'pending'
+        && incoming().targetType in ['imam', 'mosque']
+        && nonEmpty(incoming().reason, 300)
+        && str(incoming().details, 2000)
+        && str(incoming().targetName, 200);
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

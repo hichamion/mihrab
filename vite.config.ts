@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: '/mihrab/',
   server: {
     // AI Studio sets DISABLE_HMR=true while its agent edits files.
     hmr: process.env.DISABLE_HMR !== 'true',

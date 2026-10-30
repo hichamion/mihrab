@@ -52,10 +52,12 @@ service cloud.firestore {
         && nonEmpty(incoming().displayName, 120)
         && str(incoming().email, 200)
         && str(incoming().privacyAcceptedAt, 40);
-      // Owners may edit their name/photo, never role/verified. Admins may set "verified".
+      // Owners may edit their name/photo, never role. They may only DROP "verified" (set it to false),
+      // e.g. when their last approved mosque is deleted. Admins may set "verified".
       allow update: if (isAdmin() && changedKeys().hasOnly(['verified']))
         || (signedIn() && me() == userId
-            && !changedKeys().hasAny(['uid', 'role', 'verified', 'createdAt'])
+            && !changedKeys().hasAny(['uid', 'role', 'createdAt'])
+            && (!changedKeys().hasAny(['verified']) || incoming().verified == false)
             && nonEmpty(incoming().displayName, 120));
       allow delete: if isAdmin() || (signedIn() && me() == userId);
     }
@@ -113,7 +115,9 @@ service cloud.firestore {
       allow get: if signedIn() && (resource == null
         || resource.data.ownerUid == me()
         || isAdmin()
-        || isVerifiedMosque());
+        // Verified mosques see contacts of APPROVED imams only (not pending/rejected profiles).
+        || (isVerifiedMosque()
+            && get(/databases/$(database)/documents/imams/$(imamId)).data.approvalStatus == 'approved'));
       allow list: if isAdmin();
       allow create, update: if signedIn()
         && incoming().keys().hasOnly(['ownerUid', 'phone', 'whatsapp', 'email'])
@@ -202,7 +206,8 @@ service cloud.firestore {
         || (signedIn() && resource.data.mosqueOwnerUid == me()
             && changedKeys().hasOnly(['status'])
             && incoming().status in ['pending', 'accepted', 'interview_scheduled', 'declined']);
-      allow delete: if isAdmin() || (signedIn() && resource.data.imamUid == me());
+      // The imam (withdraw) or the mosque owner (account deletion / cleanup) may delete an application.
+      allow delete: if isAdmin() || (signedIn() && (resource.data.imamUid == me() || resource.data.mosqueOwnerUid == me()));
     }
 
     // ---------- messages ----------

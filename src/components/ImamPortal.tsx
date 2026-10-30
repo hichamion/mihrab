@@ -23,6 +23,8 @@ interface ImamPortalProps {
   onReportMosque: (mosque: MosqueJob) => void;
   inbox: InboxProps;
   initialTab?: Tab;
+  /** Changes on every tab request from the parent (see App). */
+  tabRequest?: number;
 }
 
 const APPLICATION_STATUS_LABEL: Record<Application['status'], string> = {
@@ -48,6 +50,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
   onReportMosque,
   inbox,
   initialTab = 'mosque_ads',
+  tabRequest = 0,
 }) => {
   const isImam = currentRole === 'imam';
   const isLoggedIn = currentRole !== 'visitor';
@@ -57,7 +60,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
 
   useEffect(() => {
     setActiveTab(isImam ? initialTab : 'mosque_ads');
-  }, [initialTab, isImam]);
+  }, [initialTab, tabRequest, isImam]);
 
   const [quickRamadanNote, setQuickRamadanNote] = useState(myImam?.ramadanNote || '');
   const [quickAfterDate, setQuickAfterDate] = useState(myImam?.availableAfterDate || '');
@@ -121,7 +124,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
               <button onClick={() => setActiveTab('inbox')} className={`${tabClass('inbox')} flex items-center gap-1.5`}>
                 <span>علبة الرسائل</span>
                 {unreadForMe > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full font-black">{unreadForMe}</span>
+                  <span className="bg-red-500 text-white text-xs px-1.5 rounded-full font-black">{unreadForMe}</span>
                 )}
               </button>
             </>
@@ -152,13 +155,13 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
               <p className="text-xs text-slate-500">تحكم في بياناتك وسيرتك الذاتية وحالة تفرغك أمام المساجد</p>
             </div>
             {myImam.approvalStatus === 'pending' && (
-              <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black px-3 py-1 rounded-full flex items-center gap-1">
+              <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
                 قيد المراجعة من الإدارة — غير ظاهر للمساجد بعد
               </span>
             )}
             {myImam.approvalStatus === 'rejected' && (
-              <span className="bg-red-100 text-red-900 border border-red-300 text-[11px] font-black px-3 py-1 rounded-full flex items-center gap-1">
+              <span className="bg-red-100 text-red-900 border border-red-300 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
                 <XCircle className="w-3.5 h-3.5" />
                 لم تتم الموافقة على الملف — راسل الإدارة للاستفسار
               </span>
@@ -216,7 +219,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                 }`}
               >
                 <div className="text-sm font-black mb-1">{title}</div>
-                <p className="text-[11px] text-slate-500">{hint}</p>
+                <p className="text-xs text-slate-500">{hint}</p>
               </button>
             ))}
 
@@ -228,7 +231,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                 <Trash2 className="w-4 h-4" />
                 <span>4. حذف الملف نهائياً</span>
               </div>
-              <p className="text-[11px] text-slate-500">مسح الملف من المنصة</p>
+              <p className="text-xs text-slate-500">مسح الملف من المنصة</p>
             </button>
           </div>
 
@@ -302,9 +305,9 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                 >
                   <div className="space-y-3">
                     <div>
-                      <span className="text-[11px] font-bold text-sky-700">{m.lookingType}</span>
+                      <span className="text-xs font-bold text-sky-700">{m.lookingType}</span>
                       <h4 className="text-lg font-black text-slate-900 mt-0.5 font-amiri">{m.mosqueName}</h4>
-                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 mt-0.5">
                         <MapPin className="w-3.5 h-3.5 text-sky-600 shrink-0" />
                         <span>
                           {m.country} · {m.city}
@@ -317,7 +320,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                     <p className="text-slate-600 leading-relaxed text-xs whitespace-pre-line">{m.details}</p>
 
                     {m.requirements?.length > 0 && (
-                      <ul className="text-[11px] text-slate-600 list-disc pr-4 space-y-0.5">
+                      <ul className="text-xs text-slate-600 list-disc pr-4 space-y-0.5">
                         {m.requirements.map((r) => (
                           <li key={r}>{r}</li>
                         ))}
@@ -325,7 +328,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                     )}
 
                     {m.salaryAndBenefits && (
-                      <p className="text-[11px] text-emerald-900 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200/70">
+                      <p className="text-xs text-emerald-900 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200/70">
                         <strong>السكن والمزايا:</strong> {m.salaryAndBenefits}
                         {' · '}
                         {m.housingProvided ? 'يتوفر سكن' : 'بدل سكن'}
@@ -344,7 +347,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                     <button
                       onClick={() => onReportMosque(m)}
-                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1 text-[11px] font-bold"
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1 text-xs font-bold"
                     >
                       <Flag className="w-3.5 h-3.5" />
                       <span>إبلاغ</span>
@@ -396,7 +399,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
                 >
                   <div>
                     <h4 className="font-bold text-slate-900">{app.mosqueName}</h4>
-                    <p className="text-slate-500 text-[11px]">{formatDate(app.appliedAt)}</p>
+                    <p className="text-slate-500 text-xs">{formatDate(app.appliedAt)}</p>
                   </div>
                   <span className="text-emerald-800 font-bold text-xs">{APPLICATION_STATUS_LABEL[app.status]}</span>
                 </div>

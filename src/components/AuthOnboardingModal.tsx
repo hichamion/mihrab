@@ -109,7 +109,7 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
               <h3 className="text-lg sm:text-xl font-black font-amiri">
                 {step === 'login' ? 'تسجيل الدخول إلى حسابك' : 'إكمال إنشاء حسابك'}
               </h3>
-              <p className="text-[11px] text-slate-300">منصة مِحراب للأئمة والمساجد</p>
+              <p className="text-xs text-slate-300">منصة مِحراب للأئمة والمساجد</p>
             </div>
           </div>
           <button
@@ -184,9 +184,9 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                     />
                   )}
                   <div className="min-w-0">
-                    <span className="text-[10px] font-bold text-emerald-700">تم تسجيل الدخول بـ:</span>
+                    <span className="text-xs font-bold text-emerald-700">تم تسجيل الدخول بـ:</span>
                     <p className="font-black text-slate-900 text-sm truncate">{customName || 'اسم صاحب الحساب'}</p>
-                    <p className="text-[11px] text-slate-500 truncate" dir="ltr">
+                    <p className="text-xs text-slate-500 truncate" dir="ltr">
                       {firebaseUser?.email}
                     </p>
                   </div>
@@ -226,7 +226,7 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                     <img src={DEFAULT_IMAM_SILHOUETTE_AVATAR} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0" />
                     <div>
                       <div className="font-black text-emerald-950 text-sm">أنا إمام / قارئ</div>
-                      <p className="text-[11px] text-slate-600">إنشاء ملفي والتقديم للمساجد</p>
+                      <p className="text-xs text-slate-600">إنشاء ملفي والتقديم للمساجد</p>
                     </div>
                   </button>
 
@@ -245,11 +245,11 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                     </div>
                     <div>
                       <div className="font-black text-sky-950 text-sm">نحن جمعية / مسجد</div>
-                      <p className="text-[11px] text-slate-600">نشر إعلان والبحث عن إمام</p>
+                      <p className="text-xs text-slate-600">نشر إعلان والبحث عن إمام</p>
                     </div>
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   لا يمكن تغيير نوع الحساب لاحقاً. حسابات المساجد ترى أرقام تواصل الأئمة بعد موافقة الإدارة على أول
                   إعلان لها.
                 </p>
@@ -263,7 +263,7 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                   onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                   className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
                 />
-                <span className="text-[11px] text-slate-700 leading-relaxed">
+                <span className="text-xs text-slate-700 leading-relaxed">
                   قرأت{' '}
                   <a
                     href="#/privacy"

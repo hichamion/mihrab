@@ -38,7 +38,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ mosque, imam, onClose, o
             <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl font-bold">✉️</div>
             <div>
               <h3 className="text-base font-black text-slate-900 font-amiri">تأكيد التقديم</h3>
-              <p className="text-[11px] text-slate-500">إرسال ملفك إلى لجنة المسجد</p>
+              <p className="text-xs text-slate-500">إرسال ملفك إلى لجنة المسجد</p>
             </div>
           </div>
           <button onClick={onClose} aria-label="إغلاق" className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
@@ -47,11 +47,11 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ mosque, imam, onClose, o
         </div>
 
         <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl space-y-1">
-          <span className="bg-amber-200/80 text-amber-950 font-bold px-2 py-0.5 rounded text-[10px]">المسجد والجهة المعلنة:</span>
+          <span className="bg-amber-200/80 text-amber-950 font-bold px-2 py-0.5 rounded text-xs">المسجد والجهة المعلنة:</span>
           <h4 className="font-black text-slate-900 text-sm font-amiri pt-1">
             {mosque.mosqueName} ({mosque.city} — {mosque.country})
           </h4>
-          <p className="text-[11px] text-slate-600">
+          <p className="text-xs text-slate-600">
             نوع الاحتياج: {mosque.lookingType} | الرواية: {mosque.riwayaRequired}
           </p>
         </div>
@@ -60,10 +60,10 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ mosque, imam, onClose, o
           <img src={getSafeImamAvatar(imam.photo)} alt="" className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-600 shadow" />
           <div className="space-y-0.5">
             <h5 className="font-black text-slate-900 text-sm font-amiri">{imam.name}</h5>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-xs text-slate-500">
               {imam.degree || '—'} | رواية {imam.riwaya}
             </p>
-            <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+            <p className="text-xs text-emerald-700 font-bold flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>سيطّلع المسجد على ملفك العام (السيرة، التلاوة) وبيانات تواصلك بعد توثيقه.</span>
             </p>

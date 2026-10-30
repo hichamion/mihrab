@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, reauthenticateWithPopup, signInWithPopup, signOut, User } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db, facebookProvider, googleProvider } from '../firebase';
 import { UserProfile, UserRole } from '../types';
@@ -91,4 +91,12 @@ export async function signInWith(provider: 'google' | 'facebook') {
 export async function signOutUser() {
   clearContactCache();
   await signOut(auth);
+}
+
+/** Confirms the user's identity again (Firebase requires a recent sign-in before deleting an account). */
+export async function reauthenticate() {
+  const user = auth.currentUser;
+  if (!user) throw new Error('not signed in');
+  const isFacebook = user.providerData.some((p) => p.providerId.includes('facebook'));
+  await reauthenticateWithPopup(user, isFacebook ? facebookProvider : googleProvider);
 }

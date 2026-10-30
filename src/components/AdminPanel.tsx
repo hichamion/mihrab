@@ -76,7 +76,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <h2 className="text-xl sm:text-2xl font-black font-amiri">
                 لوحة تحكم الإدارة
               </h2>
-              <span className="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-full">
+              <span className="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-black px-2.5 py-0.5 rounded-full">
                 صلاحيات كاملة: مراجعة • تعديل • موافقة
               </span>
             </div>
@@ -208,7 +208,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <Mail className="w-4 h-4" />
           <span>رسائل الإدارة</span>
           {unreadAdmin > 0 && (
-            <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full font-black">{unreadAdmin}</span>
+            <span className="bg-red-500 text-white text-xs px-1.5 rounded-full font-black">{unreadAdmin}</span>
           )}
         </button>
       </div>
@@ -231,7 +231,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-emerald-300 shadow-sm space-y-4">
                 <h3 className="font-black text-base text-emerald-950 flex items-center justify-between border-b pb-3">
                   <span>🎙️ طلبات تسجيل أئمة جدد ({pendingImams.length})</span>
-                  <span className="bg-amber-100 text-amber-900 text-[11px] px-2.5 py-0.5 rounded-full">
+                  <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full">
                     مخفية عن الزوار حتى توافق عليها
                   </span>
                 </h3>
@@ -254,14 +254,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center justify-between">
                               <h4 className="font-black text-sm text-slate-900 font-amiri">{imam.name}</h4>
-                              <span className="bg-amber-200 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full">
+                              <span className="bg-amber-200 text-amber-950 text-xs font-black px-2 py-0.5 rounded-full">
                                 قيد المراجعة
                               </span>
                             </div>
-                            <p className="text-slate-600 text-[11px]">
+                            <p className="text-slate-600 text-xs">
                               📍 {imam.country} • العمر: {imam.age} سنة • الرواية: {imam.riwaya}
                             </p>
-                            <p className="text-slate-700 text-[11px]">
+                            <p className="text-slate-700 text-xs">
                               🎓 {imam.degree}
                             </p>
                             <ContactBlock kind="imam" id={imam.id} canView variant="inline" lockedText="—" />
@@ -271,35 +271,35 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-emerald-200/70">
                           <button
                             onClick={() => onViewImamFull(imam)}
-                            className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-xl text-[11px] flex items-center gap-1 cursor-pointer"
+                            className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>معاينة</span>
                           </button>
                           <button
                             onClick={() => onEditImam(imam)}
-                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-[11px] flex items-center gap-1 cursor-pointer"
+                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                             <span>تعديل</span>
                           </button>
                           <button
                             onClick={() => onSetImamApproval(imam.id, 'approved')}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-4 py-1.5 rounded-xl text-[11px] shadow flex items-center gap-1 cursor-pointer"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-4 py-1.5 rounded-xl text-xs shadow flex items-center gap-1 cursor-pointer"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>موافقة واعتماد النشر</span>
                           </button>
                           <button
                             onClick={() => onSetImamApproval(imam.id, 'rejected')}
-                            className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-[11px] flex items-center gap-1 cursor-pointer"
+                            className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
                           >
                             <XCircle className="w-3.5 h-3.5" />
                             <span>رفض</span>
                           </button>
                           <button
                             onClick={() => onDeleteImam(imam)}
-                            className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                            className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-xs cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -314,7 +314,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-sky-300 shadow-sm space-y-4">
                 <h3 className="font-black text-base text-sky-950 flex items-center justify-between border-b pb-3">
                   <span>🕌 طلبات نشر مساجد وجمعيات جديدة ({pendingMosques.length})</span>
-                  <span className="bg-amber-100 text-amber-900 text-[11px] px-2.5 py-0.5 rounded-full">
+                  <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full">
                     مخفية عن الزوار حتى توافق عليها
                   </span>
                 </h3>
@@ -331,43 +331,43 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <h4 className="font-black text-sm text-slate-900 font-amiri">{m.mosqueName}</h4>
-                            <span className="bg-amber-200 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full">
+                            <span className="bg-amber-200 text-amber-950 text-xs font-black px-2 py-0.5 rounded-full">
                               قيد المراجعة
                             </span>
                           </div>
-                          <p className="text-slate-500 text-[11px]">{m.legalName}</p>
-                          <p className="text-slate-700 font-bold text-[11px]">
+                          <p className="text-slate-500 text-xs">{m.legalName}</p>
+                          <p className="text-slate-700 font-bold text-xs">
                             📍 {m.country} - {m.city} | 📖 الرواية: {m.riwayaRequired}
                           </p>
                           <ContactBlock kind="mosque" id={m.id} canView variant="inline" lockedText="—" />
-                          <p className="text-slate-600 text-[11px] pt-1">{m.details}</p>
+                          <p className="text-slate-600 text-xs pt-1">{m.details}</p>
                         </div>
 
                         <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-sky-200/70">
                           <button
                             onClick={() => onEditMosque(m)}
-                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-[11px] flex items-center gap-1 cursor-pointer"
+                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                             <span>تعديل</span>
                           </button>
                           <button
                             onClick={() => onSetMosqueApproval(m, 'approved')}
-                            className="bg-sky-600 hover:bg-sky-500 text-white font-black px-4 py-1.5 rounded-xl text-[11px] shadow flex items-center gap-1 cursor-pointer"
+                            className="bg-sky-600 hover:bg-sky-500 text-white font-black px-4 py-1.5 rounded-xl text-xs shadow flex items-center gap-1 cursor-pointer"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>موافقة واعتماد النشر</span>
                           </button>
                           <button
                             onClick={() => onSetMosqueApproval(m, 'rejected')}
-                            className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-[11px] flex items-center gap-1 cursor-pointer"
+                            className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
                           >
                             <XCircle className="w-3.5 h-3.5" />
                             <span>رفض</span>
                           </button>
                           <button
                             onClick={() => onDeleteMosque(m)}
-                            className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                            className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-xs cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -414,7 +414,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div className="flex flex-wrap items-center justify-between gap-1">
                       <h4 className="font-black text-sm text-slate-900 font-amiri">{imam.name}</h4>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                           imam.approvalStatus === 'pending'
                             ? 'bg-amber-200 text-amber-950'
                             : imam.approvalStatus === 'rejected'
@@ -429,7 +429,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           : '✅ معتمد ومنشور'}
                       </span>
                     </div>
-                    <p className="text-slate-600 text-[11px]">
+                    <p className="text-slate-600 text-xs">
                       📍 {imam.country} • الرواية: {imam.riwaya}
                     </p>
                     <ContactBlock kind="imam" id={imam.id} canView variant="inline" lockedText="—" />
@@ -440,26 +440,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   {imam.approvalStatus !== 'approved' && (
                     <button
                       onClick={() => onSetImamApproval(imam.id, 'approved')}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-3 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                     >
                       ✅ موافقة واعتماد
                     </button>
                   )}
                   <button
                     onClick={() => onViewImamFull(imam)}
-                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
                     عرض الملف
                   </button>
                   <button
                     onClick={() => onEditImam(imam)}
-                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
                     ✏️ تعديل البيانات
                   </button>
                   <button
                     onClick={() => onDeleteImam(imam)}
-                    className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                    className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
                     حذف
                   </button>
@@ -495,7 +495,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <div className="flex flex-wrap items-center justify-between gap-1">
                     <h4 className="font-black text-sm text-slate-900 font-amiri">{m.mosqueName}</h4>
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                         m.approvalStatus === 'pending'
                           ? 'bg-amber-200 text-amber-950'
                           : m.approvalStatus === 'rejected'
@@ -514,7 +514,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         : '✅ معتمد ونشط'}
                     </span>
                   </div>
-                  <p className="text-slate-500 text-[11px]">
+                  <p className="text-slate-500 text-xs">
                     📍 {m.country} - {m.city} | 📖 {m.riwayaRequired}
                   </p>
                   <ContactBlock kind="mosque" id={m.id} canView variant="inline" lockedText="—" />
@@ -524,26 +524,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   {m.approvalStatus !== 'approved' && (
                     <button
                       onClick={() => onSetMosqueApproval(m, 'approved')}
-                      className="bg-sky-600 hover:bg-sky-500 text-white font-black px-3 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                      className="bg-sky-600 hover:bg-sky-500 text-white font-black px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                     >
                       ✅ موافقة واعتماد
                     </button>
                   )}
                   <button
                     onClick={() => onEditMosque(m)}
-                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
                     ✏️ تعديل المسجد
                   </button>
                   <button
                     onClick={() => onToggleMosqueActive(m)}
-                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
                     {m.activeState === 'closed' ? 'تفعيل' : 'إيقاف'}
                   </button>
                   <button
                     onClick={() => onDeleteMosque(m)}
-                    className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-[11px] cursor-pointer"
+                    className="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
                     حذف
                   </button>
@@ -571,11 +571,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                      <span className="bg-red-600 text-white text-xs font-black px-2 py-0.5 rounded-full">
                         {rep.targetType === 'imam' ? 'بلاغ عن إمام' : 'بلاغ عن مسجد'}
                       </span>
                       <h4 className="font-black text-slate-900">{rep.targetName}</h4>
-                      <span className="text-[10px] text-slate-400">{formatDate(rep.reportedAt, true)}</span>
+                      <span className="text-xs text-slate-400">{formatDate(rep.reportedAt, true)}</span>
                     </div>
                     <p className="font-bold text-red-900">السبب: {rep.reason}</p>
                     {rep.details && <p className="text-slate-600">{rep.details}</p>}
@@ -589,7 +589,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         ✓ تأكيد المراجعة والمعالجة
                       </button>
                     ) : (
-                      <span className="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-[11px]">
+                      <span className="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-xs">
                         تمت المعالجة ✓
                       </span>
                     )}

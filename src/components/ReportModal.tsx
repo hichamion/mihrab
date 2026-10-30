@@ -62,7 +62,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ target, onClose, onCon
               <h4 className="text-base font-black text-slate-900 font-amiri">
                 {isImam ? `الإبلاغ عن ملف: ${target.name}` : `الإبلاغ عن إعلان: ${target.name}`}
               </h4>
-              <p className="text-[11px] text-slate-500">يُرسل البلاغ إلى الإدارة للمراجعة</p>
+              <p className="text-xs text-slate-500">يُرسل البلاغ إلى الإدارة للمراجعة</p>
             </div>
           </div>
           <button onClick={onClose} aria-label="إغلاق" className="text-slate-400 hover:text-slate-700 cursor-pointer">
@@ -71,7 +71,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ target, onClose, onCon
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl text-[11px] text-amber-900 flex items-start gap-2">
+          <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl text-xs text-amber-900 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p>يتم التعامل مع البلاغات بسرية، ولا يظهر اسمك لصاحب الملف.</p>
           </div>

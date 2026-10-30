@@ -12,7 +12,7 @@ const OPERATOR = {
   email: '[بريد التواصل الخاص بالخصوصية]',
 };
 
-const LAST_UPDATED = '2026-10-28';
+const LAST_UPDATED = '2026-10-30';
 
 export const PrivacyPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   return (
@@ -73,7 +73,8 @@ export const PrivacyPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <section className="space-y-2">
           <h2 className="font-black text-slate-900">5. مزودو الخدمة</h2>
           <p>
-            تُستضاف المنصة وبياناتها لدى Google Firebase (شركة Google) كمعالج بيانات نيابة عنا. قد تُعالَج بعض البيانات
+            تُستضاف صفحات الموقع على GitHub Pages (شركة GitHub التابعة لـ Microsoft)، وقد يسجّل خادمها عنوان IP لأغراض
+            الأمان والتشغيل. وتُحفظ بيانات المنصة لدى Google Firebase (شركة Google) كمعالج بيانات نيابة عنا. قد تُعالَج بعض البيانات
             خارج الاتحاد الأوروبي وفق البنود التعاقدية القياسية المعتمدة. تُعرض مقاطع التلاوة عبر YouTube عند فتح ملف
             الإمام.
           </p>
@@ -82,8 +83,9 @@ export const PrivacyPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <section className="space-y-2">
           <h2 className="font-black text-slate-900">6. مدة الاحتفاظ</h2>
           <p>
-            نحتفظ ببياناتك ما دام حسابك قائماً. عند حذف حسابك تُحذف ملفاتك وإعلاناتك وطلباتك ورسائلك فوراً من قاعدة
-            البيانات.
+            نحتفظ ببياناتك ما دام حسابك قائماً. عند حذف حسابك تُحذف فوراً من قاعدة البيانات ملفاتك وإعلاناتك وطلبات
+            الترشح (المرسلة والمستلمة) ورسائلك، وتُحذف الرسالة كذلك من صندوق الطرف الآخر. أما البلاغات التي أرسلتها
+            فتحتفظ بها الإدارة للمدة اللازمة لمعالجتها فقط.
           </p>
         </section>
 

@@ -190,7 +190,7 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
                 علبة الرسائل والمراسلات الرسمية
               </h3>
               {unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">
+                <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full animate-pulse">
                   {unreadCount} رسائل جديدة
                 </span>
               )}
@@ -236,7 +236,7 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
         >
           <span>غير المقروءة</span>
           {unreadCount > 0 && (
-            <span className="bg-red-200 text-red-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">
+            <span className="bg-red-200 text-red-950 text-xs px-1.5 py-0.2 rounded-full font-black">
               {unreadCount}
             </span>
           )}
@@ -274,7 +274,7 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
         <div className="lg:col-span-5 border border-slate-200 rounded-2xl overflow-hidden flex flex-col bg-slate-50">
           <div className="p-3 bg-white border-b border-slate-200 text-slate-600 font-bold text-xs flex justify-between items-center">
             <span>صندوق المحادثات ({filteredMessages.length})</span>
-            <span className="text-[11px] text-slate-400">مرتبة حسب الأحدث</span>
+            <span className="text-xs text-slate-400">مرتبة حسب الأحدث</span>
           </div>
 
           <div className="flex-1 overflow-y-auto max-h-[500px] divide-y divide-slate-200">
@@ -304,24 +304,25 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
                     <div className="flex justify-between items-start gap-1">
                       <div className="flex items-center gap-1.5">
                         {isAdmin ? (
-                          <span className="bg-emerald-900 text-amber-300 text-[10px] px-2 py-0.5 rounded font-black flex items-center gap-1">
+                          <span className="bg-emerald-900 text-amber-300 text-xs px-2 py-0.5 rounded font-black flex items-center gap-1">
                             <ShieldCheck className="w-3 h-3 text-amber-400" />
                             إدارة محراب
                           </span>
                         ) : sentByMe ? (
-                          <span className="bg-blue-100 text-blue-900 text-[10px] px-2 py-0.5 rounded font-bold">
+                          <span className="bg-blue-100 text-blue-900 text-xs px-2 py-0.5 rounded font-bold">
                             صادرة منك ← {msg.receiverName}
                           </span>
                         ) : (
-                          <span className="bg-slate-200 text-slate-800 text-[10px] px-2 py-0.5 rounded font-bold">
-                            من: {msg.senderName}
+                          <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded font-bold">
+                            {/* The account type is checked by the security rules; the name is free text. */}
+                            من: {msg.senderName} ({msg.senderType === 'mosque' ? 'مسجد' : 'إمام'})
                           </span>
                         )}
                         {isUnread && (
                           <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
                         )}
                       </div>
-                      <span className="text-[10px] text-slate-400 shrink-0">
+                      <span className="text-xs text-slate-400 shrink-0">
                         {formatDate(msg.sentAt)}
                       </span>
                     </div>
@@ -330,7 +331,7 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
                       {msg.subject}
                     </h5>
 
-                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                       {msg.content}
                     </p>
                   </div>
@@ -349,7 +350,7 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
               <div className="space-y-3 pb-4 border-b border-slate-100">
                 <div className="flex flex-wrap justify-between items-start gap-2">
                   <div className="space-y-1">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-black ${
                       selectedMessage.senderType === 'admin'
                         ? 'bg-emerald-900 text-amber-300'
                         : selectedMessage.category === 'interview'
@@ -378,7 +379,7 @@ export const InboxCenter: React.FC<InboxCenterProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-2 text-[11px] text-slate-600">
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-2 text-xs text-slate-600">
                   <p>
                     <strong>المرسل:</strong> {selectedMessage.senderName} ({selectedMessage.senderType === 'admin' ? 'الإدارة' : selectedMessage.senderType === 'imam' ? 'إمام' : 'مسجد'})
                     {' ← '}

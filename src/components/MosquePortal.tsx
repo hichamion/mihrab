@@ -26,6 +26,8 @@ interface MosquePortalProps {
   onReportImam: (imam: ImamProfile) => void;
   inbox: InboxProps;
   initialTab?: Tab;
+  /** Changes on every tab request from the parent (see App). */
+  tabRequest?: number;
 }
 
 const APPROVAL_LABEL: Record<MosqueJob['approvalStatus'], { text: string; cls: string }> = {
@@ -60,13 +62,14 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
   onReportImam,
   inbox,
   initialTab = 'browse',
+  tabRequest = 0,
 }) => {
   const isMosque = currentRole === 'mosque';
   const [activeTab, setActiveTab] = useState<Tab>(isMosque ? initialTab : 'browse');
 
   useEffect(() => {
     setActiveTab(isMosque ? initialTab : 'browse');
-  }, [initialTab, isMosque]);
+  }, [initialTab, tabRequest, isMosque]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [availFilter, setAvailFilter] = useState('all');
@@ -132,7 +135,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
               <button onClick={() => setActiveTab('inbox')} className={`${tabClass('inbox')} flex items-center gap-1.5`}>
                 <span>علبة الرسائل</span>
                 {unreadForMe > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full font-black">{unreadForMe}</span>
+                  <span className="bg-red-500 text-white text-xs px-1.5 rounded-full font-black">{unreadForMe}</span>
                 )}
               </button>
             </>
@@ -241,21 +244,21 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                       />
                       <div className="space-y-1">
                         <h4 className="font-black text-base text-slate-900 font-amiri">{imam.name}</h4>
-                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 font-medium">
                           <span>{imam.country}</span>
                           <span aria-hidden="true">·</span>
                           <span>{imam.age} سنة</span>
                           <span aria-hidden="true">·</span>
                           <span className="text-emerald-800 font-bold">{imam.riwaya}</span>
                         </div>
-                        <p className="text-[11px] text-slate-600 font-semibold pt-0.5">
+                        <p className="text-xs text-slate-600 font-semibold pt-0.5">
                           {imam.hasVisa === 'yes' ? 'لديه تأشيرة شنغن / إقامة أوروبية' : 'يحتاج إجراءات استقدام'}
                         </p>
                       </div>
                     </div>
 
                     <div
-                      className={`px-3 py-2 rounded-xl text-[11px] font-bold ${
+                      className={`px-3 py-2 rounded-xl text-xs font-bold ${
                         isRamadanBusy
                           ? 'bg-amber-50 text-amber-900 border border-amber-200/80'
                           : 'bg-emerald-50 text-emerald-900 border border-emerald-200/80'
@@ -297,7 +300,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                     <button
                       onClick={() => onReportImam(imam)}
                       title="إبلاغ الإدارة"
-                      className="px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1 text-[11px] font-bold shrink-0"
+                      className="px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1 text-xs font-bold shrink-0"
                     >
                       <Flag className="w-3.5 h-3.5" />
                       <span>إبلاغ</span>
@@ -344,13 +347,13 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                   <div className="space-y-3">
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <span className="text-[11px] font-bold text-sky-700">{isClosed ? 'الإعلان متوقف' : m.lookingType}</span>
+                        <span className="text-xs font-bold text-sky-700">{isClosed ? 'الإعلان متوقف' : m.lookingType}</span>
                         <h4 className="text-base font-black text-slate-900 mt-0.5 font-amiri">{m.mosqueName}</h4>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-500">
                           {m.country} · {m.city}
                         </p>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${approval.cls}`}>{approval.text}</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${approval.cls}`}>{approval.text}</span>
                     </div>
 
                     <p className="text-slate-600 leading-relaxed text-xs line-clamp-3">{m.details}</p>
@@ -361,7 +364,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                         <span>الأئمة المتقدمون ({mosqueApplicants.length}):</span>
                       </span>
                       {mosqueApplicants.length === 0 ? (
-                        <p className="text-[11px] text-slate-400">لم يتقدم أئمة بعد لهذا الإعلان.</p>
+                        <p className="text-xs text-slate-400">لم يتقدم أئمة بعد لهذا الإعلان.</p>
                       ) : (
                         <div className="space-y-2">
                           {mosqueApplicants.map((app) => {
@@ -372,7 +375,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                                   <img src={getSafeImamAvatar(candidate?.photo)} alt="" className="w-9 h-9 rounded-xl object-cover shrink-0" />
                                   <div>
                                     <h6 className="font-bold text-slate-900 text-xs">{app.imamName}</h6>
-                                    <p className="text-[10px] text-slate-500">
+                                    <p className="text-xs text-slate-500">
                                       {app.imamCountry} · {APP_STATUS_LABEL[app.status]}
                                     </p>
                                   </div>
@@ -381,7 +384,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                                   {candidate && (
                                     <button
                                       onClick={() => onViewImamFull(candidate)}
-                                      className="bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg cursor-pointer"
+                                      className="bg-slate-900 text-white text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer"
                                     >
                                       الملف
                                     </button>
@@ -389,7 +392,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                                   <button
                                     onClick={() => onScheduleInterview(app)}
                                     disabled={m.approvalStatus !== 'approved'}
-                                    className="bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50"
+                                    className="bg-emerald-700 text-white text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50"
                                   >
                                     تواصل
                                   </button>
@@ -442,7 +445,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                       <img src={getSafeImamAvatar(targetImam?.photo)} alt="" className="w-12 h-12 rounded-2xl object-cover" />
                       <div>
                         <h4 className="font-black text-slate-900 text-sm">{app.imamName}</h4>
-                        <p className="text-slate-500 text-[11px]">
+                        <p className="text-slate-500 text-xs">
                           متقدم إلى: {app.mosqueName} · {formatDate(app.appliedAt)}
                         </p>
                       </div>
@@ -452,7 +455,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                         value={app.status}
                         onChange={(e) => onSetApplicationStatus(app, e.target.value as ApplicationStatus)}
                         aria-label="حالة الطلب"
-                        className="border border-slate-300 rounded-xl px-2 py-1.5 bg-white font-bold text-[11px]"
+                        className="border border-slate-300 rounded-xl px-2 py-1.5 bg-white font-bold text-xs"
                       >
                         {(Object.keys(APP_STATUS_LABEL) as ApplicationStatus[]).map((s) => (
                           <option key={s} value={s}>
@@ -478,7 +481,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                   </div>
                   {app.note && <p className="text-slate-600 bg-white border border-slate-200 rounded-xl p-3 whitespace-pre-line">{app.note}</p>}
                   {!targetImam && (
-                    <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       ملف الإمام غير منشور حالياً (موقوف أو محذوف).
                     </p>

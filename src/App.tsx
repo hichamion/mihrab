@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Loader2, X } from 'lucide-react';
 import {
   Application,
@@ -9,7 +9,7 @@ import {
   ImamContact,
   MosqueContact,
 } from './types';
-import { useAuthState, signOutUser } from './lib/auth';
+import { useAuthState, signOutUser, reauthenticate } from './lib/auth';
 import {
   applyToMosque,
   createReport,
@@ -89,8 +89,12 @@ export default function App() {
   const initial = parseHash(window.location.hash);
   const [currentView, setCurrentViewState] = useState<View>(initial.view);
   const [pendingImamLink, setPendingImamLink] = useState<string | undefined>(initial.imamId);
-  const [imamPortalTab, setImamPortalTab] = useState<ImamTab>('mosque_ads');
-  const [mosquePortalTab, setMosquePortalTab] = useState<MosqueTab>('browse');
+  // `seq` changes on every request, so asking again for the same tab (e.g. the inbox button)
+  // still switches the portal back to it after the user moved to another tab.
+  const [imamPortalTab, setImamPortalTabState] = useState<{ tab: ImamTab; seq: number }>({ tab: 'mosque_ads', seq: 0 });
+  const [mosquePortalTab, setMosquePortalTabState] = useState<{ tab: MosqueTab; seq: number }>({ tab: 'browse', seq: 0 });
+  const setImamPortalTab = useCallback((tab: ImamTab) => setImamPortalTabState((p) => ({ tab, seq: p.seq + 1 })), []);
+  const setMosquePortalTab = useCallback((tab: MosqueTab) => setMosquePortalTabState((p) => ({ tab, seq: p.seq + 1 })), []);
 
   const setCurrentView = useCallback((view: View) => {
     setCurrentViewState(view);
@@ -217,6 +221,8 @@ export default function App() {
     );
     if (!ok) return;
     try {
+      // Sign-in confirmation first: if it fails or is cancelled, nothing has been deleted yet.
+      await reauthenticate();
       await deleteMyData(uid);
       setCurrentView('home');
       showToast('تم حذف حسابك وجميع بياناتك.');
@@ -394,7 +400,7 @@ export default function App() {
   const handleDeleteMosque = async (mosque: MosqueJob) => {
     if (!window.confirm(`حذف إعلان "${mosque.mosqueName}" نهائياً؟`)) return;
     try {
-      await deleteMosque(mosque.id);
+      await deleteMosque(mosque);
       showToast('تم حذف إعلان المسجد.');
     } catch (err) {
       showError(err);
@@ -673,7 +679,8 @@ export default function App() {
                 onApplyToMosque={handleOpenApplyModal}
                 onReportMosque={handleOpenReportMosque}
                 inbox={{ ...inboxProps, currentName: myImam?.name || displayName }}
-                initialTab={imamPortalTab}
+                initialTab={imamPortalTab.tab}
+                tabRequest={imamPortalTab.seq}
               />
             )}
 
@@ -698,7 +705,8 @@ export default function App() {
                 }
                 onReportImam={handleOpenReportImam}
                 inbox={{ ...inboxProps, currentName: myMosques[0]?.mosqueName || displayName }}
-                initialTab={mosquePortalTab}
+                initialTab={mosquePortalTab.tab}
+                tabRequest={mosquePortalTab.seq}
               />
             )}
 
@@ -735,7 +743,8 @@ export default function App() {
 
       {/* ------------------------------ Modals ------------------------------ */}
       <AuthOnboardingModal
-        isOpen={isAuthModalOpen || authState.needsOnboarding}
+        // Hidden on the privacy page so it can be read before accepting it during sign-up.
+        isOpen={(isAuthModalOpen || authState.needsOnboarding) && currentView !== 'privacy'}
         needsOnboarding={authState.needsOnboarding}
         firebaseUser={firebaseUser}
         onClose={() => setIsAuthModalOpen(false)}

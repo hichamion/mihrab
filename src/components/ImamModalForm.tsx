@@ -190,7 +190,7 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
       <div className="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl my-6 max-h-[92vh] overflow-y-auto text-xs space-y-6">
         <div className="flex justify-between items-center border-b pb-4">
           <div>
-            <span className="text-emerald-800 font-bold text-[11px]">
+            <span className="text-emerald-800 font-bold text-xs">
               {initialData ? 'تعديل الملف الحالي' : 'تسجيل ملف إمام جديد'}
             </span>
             <h3 className="text-lg md:text-xl font-black text-slate-900 mt-0.5 font-amiri">
@@ -233,7 +233,7 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
               <div className="flex flex-wrap items-center gap-4">
                 <img src={shownPhoto} alt="" className="w-20 h-20 rounded-2xl object-cover border-2 border-emerald-600 shadow-sm" />
                 <div className="space-y-2 flex-1">
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     إذا لم ترفع صورة تظهر صورة رمزية موحدة. تُصغَّر الصورة تلقائياً قبل الحفظ.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
@@ -256,7 +256,7 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
             </div>
 
             <div className="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200 space-y-2">
-              <p className="text-[11px] font-bold text-emerald-900">
+              <p className="text-xs font-bold text-emerald-900">
                 بيانات التواصل (محمية: تظهر فقط للمساجد التي وثقتها الإدارة، ولا تظهر للزوار):
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -309,9 +309,9 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
                   رفع نسخة الفيزا / الإقامة (PDF أو صورة، 5MB كحد أقصى) — تراها الإدارة فقط:
                 </label>
                 <input id="im-visa-file" type="file" accept=".pdf,image/jpeg,image/png,image/webp" onChange={pickDocument(setVisaFile)}
-                  className="w-full border border-slate-200 rounded-lg p-1.5 bg-slate-50 text-[11px]" />
+                  className="w-full border border-slate-200 rounded-lg p-1.5 bg-slate-50 text-xs" />
                 {(visaFile || initialData?.visaFileName) && (
-                  <p className="text-[11px] text-sky-700 font-bold flex items-center gap-1">
+                  <p className="text-xs text-sky-700 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-sky-600" />
                     <span>{visaFile ? `سيتم رفع: ${visaFile.name}` : `الملف الحالي: ${initialData?.visaFileName}`}</span>
                   </p>
@@ -376,9 +376,9 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
                   رفع الشواهد / السند في ملف واحد (PDF أو صورة، 5MB كحد أقصى) — تراها الإدارة فقط:
                 </label>
                 <input id="im-certs-file" type="file" accept=".pdf,image/jpeg,image/png,image/webp" onChange={pickDocument(setCertsFile)}
-                  className="w-full border border-slate-200 rounded-lg p-1.5 bg-slate-50 text-[11px]" />
+                  className="w-full border border-slate-200 rounded-lg p-1.5 bg-slate-50 text-xs" />
                 {(certsFile || initialData?.certsFileName) && (
-                  <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                  <p className="text-xs text-emerald-700 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>{certsFile ? `سيتم رفع: ${certsFile.name}` : `الملف الحالي: ${initialData?.certsFileName}`}</span>
                   </p>
@@ -411,7 +411,7 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
 
             {embedPreview && (
               <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-white space-y-2">
-                <span className="text-[11px] text-amber-400 font-bold flex items-center gap-1.5">
+                <span className="text-xs text-amber-400 font-bold flex items-center gap-1.5">
                   <Video className="w-3.5 h-3.5" />
                   <span>معاينة فيديو التلاوة:</span>
                 </span>
@@ -426,7 +426,7 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
               <textarea id="im-cv" rows={4} maxLength={5000} value={fields.cvText}
                 onChange={(e) => set('cvText', e.target.value)}
                 className="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white leading-relaxed" />
-              <p className="text-[10px] text-slate-400 text-left" dir="ltr">{fields.cvText.length}/5000</p>
+              <p className="text-xs text-slate-400 text-left" dir="ltr">{fields.cvText.length}/5000</p>
             </div>
           </div>
 

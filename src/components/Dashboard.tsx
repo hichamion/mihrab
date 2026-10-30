@@ -145,7 +145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span className="text-3xl font-black text-slate-900">{activeMosquesCount}</span>
             <span className="text-xs text-slate-400">إعلان مفتوح</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-sky-700 font-bold bg-sky-50 p-2 rounded-xl">
+          <div className="flex items-center gap-1.5 text-xs text-sky-700 font-bold bg-sky-50 p-2 rounded-xl">
             <ArrowUpRight className="w-3.5 h-3.5" />
             <span>تحديث فوري لاحتياجات المساجد بأوروبا</span>
           </div>
@@ -163,7 +163,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span className="text-3xl font-black text-slate-900">{availableImamsCount}</span>
             <span className="text-xs text-slate-400">إمام وقارئ معتمد</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl">
+          <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>ملفات راجعتها الإدارة</span>
           </div>
@@ -181,7 +181,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span className="text-3xl font-black text-amber-700">{closedMosquesCount}</span>
             <span className="text-xs text-slate-400">إعلان مغلق</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-amber-800 font-bold bg-amber-50 p-2 rounded-xl">
+          <div className="flex items-center gap-1.5 text-xs text-amber-800 font-bold bg-amber-50 p-2 rounded-xl">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>المساجد التي أوقفت إعلانها بعد إيجاد إمام</span>
           </div>
@@ -199,7 +199,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span className="text-3xl font-black text-slate-900">{ramadanImamsCount}</span>
             <span className="text-xs text-slate-400">متاحون بعد رمضان</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-purple-700 font-bold bg-purple-50 p-2 rounded-xl">
+          <div className="flex items-center gap-1.5 text-xs text-purple-700 font-bold bg-purple-50 p-2 rounded-xl">
             <FileCheck className="w-3.5 h-3.5" />
             <span>متاحون للتعاقد الدائم بعد العيد</span>
           </div>
@@ -309,7 +309,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
             {riwayaData.map((item, idx) => (
               <div key={idx} className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>

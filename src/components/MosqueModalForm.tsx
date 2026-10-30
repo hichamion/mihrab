@@ -141,7 +141,7 @@ export const MosqueModalForm: React.FC<MosqueModalFormProps> = ({ isOpen, onClos
         {/* Modal Header */}
         <div className="flex justify-between items-center border-b pb-4">
           <div>
-            <span className="bg-amber-100 text-amber-900 font-extrabold px-3 py-0.5 rounded-full text-[11px]">
+            <span className="bg-amber-100 text-amber-900 font-extrabold px-3 py-0.5 rounded-full text-xs">
               خاص بإدارات الجمعيات والمساجد
             </span>
             <h3 className="text-lg md:text-xl font-black text-slate-900 mt-1 font-amiri">
@@ -353,7 +353,7 @@ export const MosqueModalForm: React.FC<MosqueModalFormProps> = ({ isOpen, onClos
                       onChange={() => handleToggleRequirement(req)}
                       className="rounded text-emerald-600 focus:ring-emerald-500"
                     />
-                    <span className="text-[11px] leading-tight">{req}</span>
+                    <span className="text-xs leading-tight">{req}</span>
                   </label>
                 );
               })}

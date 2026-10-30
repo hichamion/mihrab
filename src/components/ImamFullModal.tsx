@@ -84,7 +84,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400 shadow-md"
               />
               {imam.isVerified && (
-                <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow">
+                <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-slate-950 text-xs font-black px-2 py-0.5 rounded-full shadow">
                   ✓ موثق
                 </span>
               )}
@@ -92,10 +92,10 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full">
+                <span className="bg-amber-500 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full">
                   {isApproved ? 'ملف إمام معتمد' : imam.approvalStatus === 'pending' ? 'قيد المراجعة' : 'غير معتمد'}
                 </span>
-                <span className={`${riwayaStyle.bg} ${riwayaStyle.text} border text-[10px] font-bold px-2 py-0.5 rounded-full`}>
+                <span className={`${riwayaStyle.bg} ${riwayaStyle.text} border text-xs font-bold px-2 py-0.5 rounded-full`}>
                   {imam.riwaya}
                 </span>
               </div>
@@ -154,7 +154,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
                   📅 تاريخ التفرغ للتعاقد الرسمي: {imam.availableAfterDate || 'بعد عيد الفطر مباشرة'}
                 </p>
               </div>
-              <span className="bg-amber-200/80 text-amber-950 font-bold px-3 py-1 rounded-xl text-[11px] shrink-0">
+              <span className="bg-amber-200/80 text-amber-950 font-bold px-3 py-1 rounded-xl text-xs shrink-0">
                 متاح لعقد رسمي دائم
               </span>
             </div>
@@ -164,7 +164,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping"></span>
                 <span>🟢 متاح حالياً (جاهز لصلاة التراويح أو للتعاقد الدائم الفوري)</span>
               </span>
-              <span className="bg-emerald-200 text-emerald-900 px-3 py-1 rounded-lg text-[11px]">
+              <span className="bg-emerald-200 text-emerald-900 px-3 py-1 rounded-lg text-xs">
                 تفرغ تام
               </span>
             </div>
@@ -182,7 +182,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
                 href={youtubeHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 text-[11px] underline"
+                className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 text-xs underline"
               >
                 <span>فتح مباشرة في يوتيوب</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -245,7 +245,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
               
               {imam.visaFilePath ? (
                 <div className="pt-1">
-                  <span className="text-[11px] bg-white text-blue-800 px-3 py-1.5 rounded-xl border border-blue-200 inline-flex items-center gap-1.5 font-bold shadow-sm">
+                  <span className="text-xs bg-white text-blue-800 px-3 py-1.5 rounded-xl border border-blue-200 inline-flex items-center gap-1.5 font-bold shadow-sm">
                     <Download className="w-3.5 h-3.5 text-blue-600" />
                     <span>
                       {isOwnerOrAdmin ? `الوثيقة المرفوعة: ${imam.visaFileName}` : 'تم رفع وثيقة التأشيرة للإدارة'}
@@ -253,7 +253,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
                   </span>
                 </div>
               ) : imam.hasVisa === 'no' ? (
-                <span className="text-[11px] text-slate-500">
+                <span className="text-xs text-slate-500">
                   يحتاج استقدام وتأشيرة عمل من طرف المسجد
                 </span>
               ) : null}
@@ -268,18 +268,18 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
               <p className="text-emerald-900 font-semibold leading-relaxed">
                 {imam.degree}
               </p>
-              <p className="text-slate-600 text-[11px]">
+              <p className="text-slate-600 text-xs">
                 🗣️ <strong>اللغات:</strong> {imam.languages}
               </p>
               {imam.germanLevel && imam.germanLevel !== 'none' && (
-                <p className="text-emerald-800 font-bold text-[11px]">
+                <p className="text-emerald-800 font-bold text-xs">
                   🇩🇪 شهادة اللغة الألمانية: مستوى {imam.germanLevel}
                 </p>
               )}
 
               {imam.certsFilePath && (
                 <div className="pt-1">
-                  <span className="text-[11px] bg-white text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200 inline-flex items-center gap-1.5 font-bold shadow-sm">
+                  <span className="text-xs bg-white text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200 inline-flex items-center gap-1.5 font-bold shadow-sm">
                     <Download className="w-3.5 h-3.5 text-emerald-600" />
                     <span>
                       {isOwnerOrAdmin ? `الشواهد المرفوعة: ${imam.certsFileName}` : 'تم رفع الشواهد للإدارة'}
@@ -310,7 +310,7 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
                   <Lock className="w-4 h-4 text-amber-400" />
                   <span>بيانات الاتصال محمية للمساجد الموثقة فقط</span>
                 </p>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-300 leading-relaxed">
                   {isUnverifiedMosque
                     ? 'ستظهر لك أرقام التواصل بعد أن توافق الإدارة على إعلان مسجدك.'
                     : 'حفاظاً على خصوصية الأئمة، لا تظهر أرقام الهاتف والبريد إلا لحسابات المساجد التي وثقتها الإدارة.'}

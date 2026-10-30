@@ -37,14 +37,14 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
 
   if (!canView || denied) {
     if (variant === 'inline') {
-      return <span className="text-slate-400 text-[11px]">{lockedText}</span>;
+      return <span className="text-slate-400 text-xs">{lockedText}</span>;
     }
     return (
       <button
         type="button"
         onClick={onLockedClick}
         disabled={!onLockedClick}
-        className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between transition text-[11px] cursor-pointer disabled:cursor-default"
+        className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between transition text-xs cursor-pointer disabled:cursor-default"
       >
         <span className="text-slate-600 font-semibold flex items-center gap-1.5 text-right">
           <Lock className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
@@ -57,7 +57,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 p-2">
+      <div className="flex items-center gap-1.5 text-xs text-slate-400 p-2">
         <Loader2 className="w-3.5 h-3.5 animate-spin" />
         <span>جاري تحميل بيانات التواصل…</span>
       </div>
@@ -65,7 +65,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
   }
 
   if (!contact) {
-    return <span className="text-slate-400 text-[11px]">لم تُضف بيانات تواصل بعد.</span>;
+    return <span className="text-slate-400 text-xs">لم تُضف بيانات تواصل بعد.</span>;
   }
 
   const wa = whatsappLink(contact.whatsapp || contact.phone);
@@ -77,7 +77,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
 
   if (variant === 'inline') {
     return (
-      <span className="text-emerald-900 font-bold text-[11px]" dir="ltr">
+      <span className="text-emerald-900 font-bold text-xs" dir="ltr">
         📞 {contact.phone || contact.whatsapp || '—'} | ✉️ {contact.email || '—'}
       </span>
     );
@@ -85,7 +85,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
 
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-      <div className="text-[11px] text-slate-700 font-semibold space-y-0.5">
+      <div className="text-xs text-slate-700 font-semibold space-y-0.5">
         {person && <p>المسؤول: {person}</p>}
         <p dir="ltr" className="text-right">
           {[contact.phone || contact.whatsapp, contact.email].filter(Boolean).join(' · ')}
@@ -97,7 +97,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-2 rounded-lg text-xs flex items-center justify-center gap-1 transition"
           >
             <MessageSquare className="w-3 h-3" />
             <span>واتساب</span>
@@ -108,7 +108,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
         {tel ? (
           <a
             href={tel}
-            className="bg-sky-600 hover:bg-sky-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition"
+            className="bg-sky-600 hover:bg-sky-500 text-white font-bold py-1.5 px-2 rounded-lg text-xs flex items-center justify-center gap-1 transition"
           >
             <Phone className="w-3 h-3" />
             <span>هاتف</span>
@@ -119,7 +119,7 @@ export const ContactBlock: React.FC<ContactBlockProps> = ({
         {mail ? (
           <a
             href={mail}
-            className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1 transition"
+            className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 px-2 rounded-lg text-xs flex items-center justify-center gap-1 transition"
           >
             <Mail className="w-3 h-3" />
             <span>إيميل</span>

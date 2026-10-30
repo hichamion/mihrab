@@ -120,7 +120,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ target, myMosque
             <span className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl font-bold">📞</span>
             <div>
               <h4 className="text-base font-black text-slate-900 font-amiri">طلب تواصل رسمي مع الشيخ</h4>
-              <p className="text-[11px] text-slate-500">المرشح: {imamName}</p>
+              <p className="text-xs text-slate-500">المرشح: {imamName}</p>
             </div>
           </div>
           <button onClick={onClose} aria-label="إغلاق" className="text-slate-400 hover:text-slate-700 cursor-pointer">
@@ -190,7 +190,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({ target, myMosque
                 className="w-full border border-slate-300 rounded-xl p-3 bg-white leading-relaxed text-xs" />
             </div>
 
-            <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-[11px] text-emerald-900">
+            <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900">
               سيتم إرسال الموعد ووسيلة التواصل إلى علبة رسائل الإمام داخل المنصة.
             </div>
 

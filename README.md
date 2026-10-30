@@ -70,15 +70,19 @@ npm run deploy:rules
 
 ## النشر على الإنترنت
 
-**الخيار الموصى به: Firebase Hosting**
+**النشر الحالي: GitHub Pages** على `https://hichamion.github.io/mihrab/`.
+كل دفعة (push) إلى `main` تشغّل `.github/workflows/deploy.yml`: فحص الأنواع ثم البناء ثم النشر.
+التطبيق يستخدم روابط `#/...`، و`base: '/mihrab/'` مضبوط في `vite.config.ts`.
+
+> ملاحظة: ترويسات الأمان في `firebase.json` (مثل `X-Frame-Options`) تُطبَّق على Firebase Hosting فقط، لا على GitHub Pages.
+> إذا نقلت الموقع إلى نطاق آخر، عدّل `og:url` و`og:image` و`canonical` في `index.html` و`start_url` في `public/site.webmanifest`.
+
+**بديل: Firebase Hosting**
 ```bash
 npm run deploy
 ```
 
-**أو Vercel / Netlify:** اربطه بمستودع GitHub. أمر البناء `npm run build`، ومجلد النشر `dist`.
-
-**أو GitHub Pages:** التطبيق يستخدم روابط `#/...`، فيعمل بدون إعدادات إضافية.
-إذا كان الرابط بصيغة `username.github.io/mihrab`، أضف `base: '/mihrab/'` في `vite.config.ts`.
+**أو Vercel / Netlify:** اربطه بمستودع GitHub. أمر البناء `npm run build`، ومجلد النشر `dist` (واجعل `base` في `vite.config.ts` هو `/`).
 
 في كل الحالات، أضف النطاق الجديد إلى **Authorized domains** في Firebase Authentication.
 
@@ -96,7 +100,8 @@ npm run deploy
 | `messages/{id}` | الرسائل | الطرفان فقط |
 | `reports/{id}` | البلاغات | الإدارة فقط |
 
-**متى يصبح حساب المسجد موثقاً؟** عندما يوافق المدير على أول إعلان له. عندها تظهر له أرقام الأئمة.
+**متى يصبح حساب المسجد موثقاً؟** عندما يوافق المدير على أول إعلان له. عندها تظهر له أرقام الأئمة **المعتمدين** فقط.
+ويُسحب التوثيق تلقائياً إذا رُفض أو حُذف آخر إعلان معتمد له.
 
 ## بنية المشروع
 
@@ -123,5 +128,7 @@ firebase.json             إعدادات النشر
 - [ ] نفّذ `npm run deploy:rules` وتأكد من تطبيق القواعد.
 - [ ] عيّن حساب المدير، ثم جرّب التسجيل كإمام ثم كمسجد بحسابين مختلفين.
 - [ ] اختر ترخيصاً للمشروع (LICENSE) إن كان المستودع عاماً.
+- [ ] أضف `hichamion.github.io` إلى **Authentication → Settings → Authorized domains**.
+- [ ] فعّل **Firebase App Check** (reCAPTCHA Enterprise) للحد من الرسائل والبلاغات المزعجة الآلية.
 
 </div>

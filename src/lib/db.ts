@@ -448,18 +448,35 @@ export async function setMosqueApproval(mosque: MosqueJob, status: 'approved' | 
     batch.update(doc(db, 'users', mosque.ownerUid), { verified: true });
   }
   await batch.commit();
+  if (status === 'rejected' && mosque.ownerUid !== adminUid) await refreshOwnerVerified(mosque.ownerUid);
+}
+
+/**
+ * Removes the "verified mosque" flag from an owner who no longer has any approved mosque
+ * (after a rejection or a deletion), so they stop seeing imam contact details.
+ * Callable by an admin or by the owner (the rules only let owners set verified to false).
+ */
+async function refreshOwnerVerified(ownerUid: string) {
+  try {
+    const owned = await getDocs(query(collection(db, 'mosques'), where('ownerUid', '==', ownerUid)));
+    if (owned.docs.some((d) => d.data().approvalStatus === 'approved')) return;
+    await updateDoc(doc(db, 'users', ownerUid), { verified: false });
+  } catch (err) {
+    console.warn('[verified]', err);
+  }
 }
 
 export async function setMosqueActive(id: string, activeState: 'active' | 'closed') {
   await updateDoc(doc(db, 'mosques', id), { activeState, updatedAt: nowIso() });
 }
 
-export async function deleteMosque(id: string) {
+export async function deleteMosque(mosque: Pick<MosqueJob, 'id' | 'ownerUid'>, refreshVerified = true) {
   const batch = writeBatch(db);
-  batch.delete(doc(db, 'mosques', id));
-  batch.delete(doc(db, 'mosqueContacts', id));
+  batch.delete(doc(db, 'mosques', mosque.id));
+  batch.delete(doc(db, 'mosqueContacts', mosque.id));
   await batch.commit();
-  contactCache.delete(`mosque:${id}`);
+  contactCache.delete(`mosque:${mosque.id}`);
+  if (refreshVerified && mosque.ownerUid) await refreshOwnerVerified(mosque.ownerUid);
 }
 
 // ---------------------------------------------------------------------------
@@ -547,11 +564,13 @@ export async function deleteMyData(uid: string) {
 
   // Mosques owned by this user
   const myMosques = await getDocs(query(collection(db, 'mosques'), where('ownerUid', '==', uid)));
-  for (const m of myMosques.docs) await deleteMosque(m.id);
+  for (const m of myMosques.docs) await deleteMosque({ id: m.id, ownerUid: uid }, false);
 
-  // Applications sent as an imam
+  // Applications sent as an imam, and applications received as a mosque
   const myApps = await getDocs(query(collection(db, 'applications'), where('imamUid', '==', uid)));
   for (const a of myApps.docs) await deleteDoc(a.ref);
+  const receivedApps = await getDocs(query(collection(db, 'applications'), where('mosqueOwnerUid', '==', uid)));
+  for (const a of receivedApps.docs) await deleteDoc(a.ref);
 
   // Messages sent or received
   const myMsgs = await getDocs(query(collection(db, 'messages'), where('participants', 'array-contains', uid)));
@@ -559,7 +578,8 @@ export async function deleteMyData(uid: string) {
 
   await deleteDoc(doc(db, 'users', uid));
 
-  // Finally the Firebase Auth account (may require a recent sign-in).
+  // Finally the Firebase Auth account. The caller re-authenticates first (reauthenticate() in lib/auth),
+  // otherwise Firebase refuses with "requires-recent-login" after the data is already gone.
   if (auth.currentUser && auth.currentUser.uid === uid) {
     await auth.currentUser.delete();
   }

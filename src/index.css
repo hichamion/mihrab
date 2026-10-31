@@ -10,6 +10,13 @@
   font-family: 'Amiri', serif;
 }
 
+/* Maghribi-style calligraphic titles (home page). */
+.font-maghribi {
+  font-family: 'Ruwudu', 'Amiri', serif;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 /* Custom scrollbar for clean UI */
 ::-webkit-scrollbar {
   width: 8px;

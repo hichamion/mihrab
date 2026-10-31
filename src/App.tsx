@@ -15,6 +15,7 @@ import {
   createReport,
   deleteImam,
   deleteMessage,
+  deleteFeedback,
   deleteMosque,
   deleteMyData,
   describeError,
@@ -26,6 +27,8 @@ import {
   saveImam,
   saveMosque,
   sendMessage,
+  sendFeedback,
+  setFeedbackHandled,
   setApplicationStatus,
   setImamApproval,
   setMosqueActive,
@@ -47,13 +50,15 @@ import { InterviewModal, InterviewDetails } from './components/InterviewModal';
 import { ReportModal } from './components/ReportModal';
 import { PrivacyPage } from './components/PrivacyPage';
 import { Footer } from './components/Footer';
-import { MIN_ITEMS_FOR_STATS } from './config';
+import { MIN_ITEMS_FOR_STATS, SUPPORT_ENABLED } from './config';
+import { ContactPage } from './components/ContactPage';
+import { SupportPage } from './components/SupportPage';
 
 // Loaded on demand: the statistics page pulls in the charts library, and the admin panel is for admins only.
 const Dashboard = lazy(() => import('./components/Dashboard').then((m) => ({ default: m.Dashboard })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })));
 
-export type View = 'home' | 'dashboard' | 'imam' | 'mosque' | 'admin' | 'privacy';
+export type View = 'home' | 'dashboard' | 'imam' | 'mosque' | 'admin' | 'privacy' | 'contact' | 'support';
 type ImamTab = 'manage' | 'mosque_ads' | 'applications' | 'inbox';
 type MosqueTab = 'browse' | 'manage_mosques' | 'applications' | 'inbox';
 
@@ -66,6 +71,8 @@ const VIEW_TO_HASH: Record<View, string> = {
   mosque: '#/imams',
   admin: '#/admin',
   privacy: '#/privacy',
+  contact: '#/contact',
+  support: '#/support',
 };
 
 const VIEW_TITLES: Record<View, string> = {
@@ -75,6 +82,8 @@ const VIEW_TITLES: Record<View, string> = {
   mosque: 'الأئمة المتاحون | محراب',
   admin: 'لوحة الإدارة | محراب',
   privacy: 'سياسة الخصوصية | محراب',
+  contact: 'راسل الإدارة | محراب',
+  support: 'ادعم المنصة | محراب',
 };
 
 function parseHash(hash: string): { view: View; imamId?: string } {
@@ -93,7 +102,7 @@ export default function App() {
   const uid = firebaseUser?.uid ?? null;
 
   const data = usePlatformData(uid, role);
-  const { imams, mosques, applications, messages, reports } = data;
+  const { imams, mosques, applications, messages, reports, feedback } = data;
 
   // ------------------------------------------------------------------
   // Navigation
@@ -127,6 +136,11 @@ export default function App() {
   useEffect(() => {
     document.title = VIEW_TITLES[currentView];
   }, [currentView]);
+
+  // The support page exists only once a payment method is configured (src/config.ts).
+  useEffect(() => {
+    if (currentView === 'support' && !SUPPORT_ENABLED) setCurrentView('home');
+  }, [currentView, setCurrentView]);
 
   // The admin view is only for admins.
   useEffect(() => {
@@ -567,6 +581,22 @@ export default function App() {
     }
   };
 
+  const handleSendFeedback = async (item: Parameters<typeof sendFeedback>[0]): Promise<boolean> => {
+    try {
+      await sendFeedback(item);
+      return true;
+    } catch (err) {
+      showError(err);
+      return false;
+    }
+  };
+
+  const handleFeedbackHandled = (id: string) => setFeedbackHandled(id).catch(showError);
+  const handleDeleteFeedback = async (id: string) => {
+    if (!window.confirm('حذف هذه الرسالة؟')) return;
+    await deleteFeedback(id).catch(showError);
+  };
+
   const handleResolveReport = async (id: string) => {
     try {
       await resolveReport(id);
@@ -670,7 +700,7 @@ export default function App() {
             </div>
           }
         >
-        {data.loading && currentView !== 'home' && currentView !== 'privacy' ? (
+        {data.loading && !['home', 'privacy', 'contact', 'support'].includes(currentView) ? (
           <div className="flex-1 flex items-center justify-center py-24 text-slate-500 text-sm gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
             <span>جاري تحميل البيانات…</span>
@@ -691,6 +721,7 @@ export default function App() {
                 mosquesCount={activeMosquesCount}
                 pendingCount={pendingApprovalsCount}
                 showStats={showStats}
+                onOpenContact={() => setCurrentView('contact')}
               />
             )}
 
@@ -764,6 +795,9 @@ export default function App() {
                 onDeleteMosque={handleDeleteMosque}
                 onToggleMosqueActive={handleToggleMosqueActive}
                 onResolveReport={handleResolveReport}
+                feedback={feedback}
+                onFeedbackHandled={handleFeedbackHandled}
+                onDeleteFeedback={handleDeleteFeedback}
                 onOpenImamAdd={handleOpenImamAdd}
                 onOpenMosqueAdd={handleOpenMosqueAdd}
                 inbox={{ ...inboxProps, currentName: 'إدارة محراب' }}
@@ -771,6 +805,17 @@ export default function App() {
             )}
 
             {currentView === 'privacy' && <PrivacyPage onBack={() => setCurrentView('home')} />}
+
+            {currentView === 'contact' && (
+              <ContactPage
+                defaultName={role === 'visitor' ? '' : displayName}
+                defaultEmail={profile?.email || firebaseUser?.email || ''}
+                onBack={() => setCurrentView('home')}
+                onSend={handleSendFeedback}
+              />
+            )}
+
+            {currentView === 'support' && SUPPORT_ENABLED && <SupportPage onBack={() => setCurrentView('home')} />}
           </>
         )}
       </Suspense>
@@ -783,6 +828,8 @@ export default function App() {
         onOpenImamAdd={handleOpenImamAdd}
         onOpenMosqueAdd={handleOpenMosqueAdd}
         onOpenHowItWorks={goHowItWorks}
+        onOpenContact={() => setCurrentView('contact')}
+        onOpenSupport={SUPPORT_ENABLED ? () => setCurrentView('support') : undefined}
       />
 
       {/* ------------------------------ Modals ------------------------------ */}

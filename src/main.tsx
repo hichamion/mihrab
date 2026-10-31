@@ -9,6 +9,8 @@ import '@fontsource/cairo/800.css';
 import '@fontsource/cairo/900.css';
 import '@fontsource/amiri/400.css';
 import '@fontsource/amiri/700.css';
+// Maghribi-style display font for the home page titles.
+import '@fontsource/ruwudu/700.css';
 import App from './App.tsx';
 import './index.css';
 

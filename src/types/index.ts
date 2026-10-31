@@ -154,6 +154,21 @@ export interface ReportItem {
   status: 'pending' | 'reviewed';
 }
 
+/** Firestore: feedback/{id} — "contact the admin / suggestion" form, open to everyone, readable by admins only. */
+export type FeedbackKind = 'message' | 'suggestion' | 'problem';
+export interface FeedbackItem {
+  id: string;
+  kind: FeedbackKind;
+  name: string;
+  /** Optional, so the admin can reply. */
+  email: string;
+  message: string;
+  /** Set when the sender was signed in. */
+  senderUid?: string;
+  createdAt: string;
+  status: 'new' | 'handled';
+}
+
 /** Files picked in the imam form, uploaded on save. */
 export interface ImamFormFiles {
   /** A compressed data URL, '' to reset to the default avatar, or undefined to keep the current photo. */

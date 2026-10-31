@@ -151,3 +151,22 @@ export function getRiwayaBadgeStyle(riwaya: string): { bg: string; text: string;
   }
   return { bg: 'bg-slate-100', text: 'text-slate-800', border: 'border-slate-200' };
 }
+
+/** Roles an imam can tick when creating the profile (they can also type their own). */
+export const IMAM_TITLE_OPTIONS = ['إمام', 'خطيب', 'محفظ'];
+
+/** Languages offered as quick choices in the imam form ("other" languages can be typed). */
+export const LANGUAGE_OPTIONS = ['العربية', 'الفرنسية', 'الألمانية', 'الإنجليزية', 'الهولندية', 'الإسبانية', 'الإيطالية', 'التركية', 'الأمازيغية'];
+
+/** Splits a free-text list ("العربية، الفرنسية") into items. */
+export const splitList = (v: string) =>
+  (v || '')
+    .split(/[،,;\n]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+/** The imam's titles for display, e.g. «إمام • خطيب • محفظ» (older profiles: «إمام وقارئ»). */
+export function imamTitle(titles?: string[]): string {
+  const t = (titles || []).map((x) => x.trim()).filter(Boolean);
+  return t.length ? t.join(' • ') : 'إمام وقارئ';
+}

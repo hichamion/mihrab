@@ -35,7 +35,12 @@ export interface ImamProfile {
   ownerUid: string;
   name: string;
   age: number;
+  /** Current place of residence (city and country). */
   country: string;
+  /** Nationality, e.g. «مغربي». Optional for profiles created before it existed. */
+  nationality?: string;
+  /** What the imam does: «إمام», «خطيب», «محفظ» and/or titles they typed. */
+  titles?: string[];
   hasVisa: 'yes' | 'no';
   visaDetails: string;
   hasCerts: 'yes' | 'no';

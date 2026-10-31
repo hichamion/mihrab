@@ -64,13 +64,15 @@ service cloud.firestore {
 
     // ---------- imams ----------
     function validImam(d) {
-      return d.keys().hasOnly(['ownerUid', 'name', 'age', 'country', 'hasVisa', 'visaDetails', 'hasCerts', 'degree',
+      return d.keys().hasOnly(['ownerUid', 'name', 'age', 'country', 'nationality', 'titles', 'hasVisa', 'visaDetails', 'hasCerts', 'degree',
                                'riwaya', 'languages', 'germanLevel', 'youtubeUrl', 'cvText', 'availabilityState',
                                'ramadanNote', 'availableAfterDate', 'photo', 'visaFilePath', 'visaFileName',
                                'certsFilePath', 'certsFileName', 'approvalStatus', 'isVerified', 'createdAt', 'updatedAt'])
         && nonEmpty(d.name, 120)
         && d.age is int && d.age >= 18 && d.age <= 90
         && nonEmpty(d.country, 120)
+        && str(d.get('nationality', ''), 80)
+        && d.get('titles', []) is list && d.get('titles', []).size() <= 8
         && d.hasVisa in ['yes', 'no']
         && d.hasCerts in ['yes', 'no']
         && str(d.visaDetails, 500)

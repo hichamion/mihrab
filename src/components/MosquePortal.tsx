@@ -3,7 +3,8 @@ import { ImamProfile, MosqueJob, Application, UserRole, ApplicationStatus } from
 import { formatDate, getSafeImamAvatar } from '../utils/helpers';
 import { InboxCenter, InboxProps } from './InboxCenter';
 import { ContactBlock } from './ContactBlock';
-import { Search, Play, Trash2, Plus, UserCheck, Flag, Lock, Clock, ShieldAlert } from 'lucide-react';
+import { ImamMiniCard } from './MiniCards';
+import { Search, Trash2, Plus, UserCheck, Lock, Clock, ShieldAlert } from 'lucide-react';
 
 type Tab = 'browse' | 'manage_mosques' | 'applications' | 'inbox';
 
@@ -85,6 +86,8 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
       !q ||
       imam.name.toLowerCase().includes(q) ||
       imam.country.toLowerCase().includes(q) ||
+      (imam.nationality || '').toLowerCase().includes(q) ||
+      (imam.titles || []).some((t) => t.toLowerCase().includes(q)) ||
       imam.degree.toLowerCase().includes(q) ||
       imam.languages.toLowerCase().includes(q);
     const matchesAvail = availFilter === 'all' || imam.availabilityState === availFilter;
@@ -179,7 +182,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ابحث بالاسم أو البلد أو المؤهل..."
+                placeholder="ابحث بالاسم أو الجنسية أو مكان الإقامة أو الصفة..."
                 aria-label="بحث"
                 className="w-full border border-slate-300 rounded-xl px-3 py-2.5 pr-9 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
@@ -231,88 +234,23 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visibleImams.map((imam) => {
-              const isRamadanBusy = imam.availabilityState === 'busy_ramadan';
-              return (
-                <div
-                  key={imam.id}
-                  className="bg-white rounded-2xl border border-slate-200 hover:border-emerald-500/60 transition-all duration-200 overflow-hidden flex flex-col justify-between text-xs shadow-2xs hover:shadow-md"
-                >
-                  <div className="p-5 space-y-4">
-                    <div className="flex items-start gap-3.5">
-                      <img
-                        src={getSafeImamAvatar(imam.photo)}
-                        alt={imam.name}
-                        loading="lazy"
-                        className="w-16 h-16 rounded-2xl object-cover border border-emerald-700/30 shrink-0"
-                      />
-                      <div className="space-y-1">
-                        <h4 className="font-black text-base text-slate-900 font-amiri">{imam.name}</h4>
-                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 font-medium">
-                          <span>{imam.country}</span>
-                          <span aria-hidden="true">·</span>
-                          <span>{imam.age} سنة</span>
-                          <span aria-hidden="true">·</span>
-                          <span className="text-emerald-800 font-bold">{imam.riwaya}</span>
-                        </div>
-                        <p className="text-xs text-slate-600 font-semibold pt-0.5">
-                          {imam.hasVisa === 'yes' ? 'لديه تأشيرة شنغن / إقامة أوروبية' : 'يحتاج إجراءات استقدام'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      className={`px-3 py-2 rounded-xl text-xs font-bold ${
-                        isRamadanBusy
-                          ? 'bg-amber-50 text-amber-900 border border-amber-200/80'
-                          : 'bg-emerald-50 text-emerald-900 border border-emerald-200/80'
-                      }`}
-                    >
-                      {isRamadanBusy
-                        ? `ملتزم في رمضان — متاح للتعاقد: ${imam.availableAfterDate || 'بعد العيد'}`
-                        : 'متاح حالياً لصلاة التراويح أو التعاقد الدائم'}
-                    </div>
-
-                    <div className="space-y-1.5 text-slate-600 text-xs pt-1 border-t border-slate-100">
-                      <p className="line-clamp-1">
-                        <strong className="text-slate-800">المؤهل:</strong> {imam.degree || '—'}
-                      </p>
-                      <p className="line-clamp-1">
-                        <strong className="text-slate-800">اللغات:</strong> {imam.languages || '—'}
-                      </p>
-                    </div>
-
-                    <ContactBlock
-                      kind="imam"
-                      id={imam.id}
-                      canView={canSeeImamContacts}
-                      lockedText={
-                        isMosque ? 'تظهر الأرقام بعد توثيق حسابك' : 'أرقام التواصل للمساجد الموثقة فقط'
-                      }
-                      onLockedClick={currentRole === 'visitor' ? onOpenAuthModal : undefined}
-                    />
-                  </div>
-
-                  <div className="p-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => onViewImamFull(imam)}
-                      className="flex-1 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer text-xs whitespace-nowrap"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>الاستماع للتلاوة وعرض الملف</span>
-                    </button>
-                    <button
-                      onClick={() => onReportImam(imam)}
-                      title="إبلاغ الإدارة"
-                      className="px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1 text-xs font-bold shrink-0"
-                    >
-                      <Flag className="w-3.5 h-3.5" />
-                      <span>إبلاغ</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {visibleImams.map((imam) => (
+              <ImamMiniCard
+                key={imam.id}
+                imam={imam}
+                onOpen={() => onViewImamFull(imam)}
+                onReport={() => onReportImam(imam)}
+                contactBlock={
+                  <ContactBlock
+                    kind="imam"
+                    id={imam.id}
+                    canView={canSeeImamContacts}
+                    lockedText={isMosque ? 'تظهر الأرقام بعد توثيق حسابك' : 'أرقام التواصل للمساجد الموثقة فقط'}
+                    onLockedClick={currentRole === 'visitor' ? onOpenAuthModal : undefined}
+                  />
+                }
+              />
+            ))}
           </div>
         </div>
       )}

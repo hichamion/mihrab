@@ -306,6 +306,8 @@ export type ImamEditableFields = Pick<
   | 'name'
   | 'age'
   | 'country'
+  | 'nationality'
+  | 'titles'
   | 'hasVisa'
   | 'visaDetails'
   | 'hasCerts'

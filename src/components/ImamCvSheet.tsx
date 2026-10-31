@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   BookOpen,
+  Flag,
   CalendarClock,
   GraduationCap,
   Languages,
@@ -13,7 +14,7 @@ import {
   Video,
 } from 'lucide-react';
 import { ImamContact, ImamProfile } from '../types';
-import { getSafeImamAvatar, safeHttpUrl } from '../utils/helpers';
+import { getSafeImamAvatar, imamTitle, safeHttpUrl } from '../utils/helpers';
 import { LogoMark } from './Logo';
 
 /*
@@ -31,7 +32,7 @@ const AVAILABILITY: Record<ImamProfile['availabilityState'], string> = {
   paused: 'غير متاح حالياً',
 };
 
-const GERMAN_DOTS: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
+const GERMAN_DOTS: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, 'B2+': 4, C1: 5, C2: 5 };
 
 const splitList = (v: string) =>
   v
@@ -189,7 +190,8 @@ export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
           <section className="space-y-3">
             <SideTitle icon={<User className="w-5 h-5" />}>المعلومات الشخصية</SideTitle>
             <ContactLine icon={<User className="w-4 h-4" />} value={imam.age ? `${imam.age} سنة` : ''} />
-            <ContactLine icon={<MapPin className="w-4 h-4" />} value={imam.country} />
+            <ContactLine icon={<Flag className="w-4 h-4" />} value={imam.nationality ? `الجنسية: ${imam.nationality}` : ''} />
+            <ContactLine icon={<MapPin className="w-4 h-4" />} value={imam.country ? `مقيم في: ${imam.country}` : ''} />
             {contactSlot ?? (
               <>
                 <ContactLine icon={<Phone className="w-4 h-4" />} value={contact?.phone ?? ''} ltr />
@@ -247,7 +249,7 @@ export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
         <main className={`relative flex-1 flex flex-col gap-7 px-7 pt-9 ${print ? 'pb-36' : 'pb-32'}`}>
           <header className="text-center space-y-2">
             <h1 className="text-4xl font-black text-[#0b3a4f] leading-tight font-amiri">{imam.name}</h1>
-            <p className="text-xl font-black text-amber-600">إمام وقارئ</p>
+            <p className="text-xl font-black text-amber-600">{imamTitle(imam.titles)}</p>
             <div className="flex items-center justify-center gap-2" aria-hidden>
               <span className="h-0.5 w-16 bg-amber-400 rounded" />
               <span className="w-8 h-2 rounded-b-full bg-amber-500" />

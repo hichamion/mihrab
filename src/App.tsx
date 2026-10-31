@@ -889,6 +889,7 @@ export default function App() {
         }}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onCopied={() => showToast('تم نسخ رابط الملف.')}
+        onError={(msg) => showToast(msg, 'error')}
       />
 
       <ApplyModal

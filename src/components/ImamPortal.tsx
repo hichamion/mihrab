@@ -88,7 +88,7 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
 
   return (
     <section className="flex-1 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
-      <div className="bg-gradient-to-r from-sky-600 via-sky-700 to-blue-800 text-white p-6 sm:p-7 rounded-3xl shadow-md flex flex-wrap justify-between items-center gap-4">
+      <div className="glass-card overflow-hidden bg-gradient-to-l from-[#2fbf7a] via-[#12804c] to-[#05472b] text-white p-6 sm:p-7 rounded-[2rem] flex flex-wrap justify-between items-center gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-black font-amiri">
             إعلانات المساجد والجمعيات{activeMosques.length > 0 ? ` (${activeMosques.length})` : ''}

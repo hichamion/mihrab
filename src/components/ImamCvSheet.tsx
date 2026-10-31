@@ -1,0 +1,311 @@
+import React, { useEffect, useState } from 'react';
+import {
+  BookOpen,
+  CalendarClock,
+  GraduationCap,
+  Languages,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Plane,
+  User,
+  Video,
+} from 'lucide-react';
+import { ImamContact, ImamProfile } from '../types';
+import { getSafeImamAvatar, safeHttpUrl } from '../utils/helpers';
+import { LogoMark } from './Logo';
+
+/*
+ * CV-style imam profile: a dark side column (photo in a gold ring, personal info, Qur'an qualifications,
+ * languages) and a main column (name, bio in quotes, ribbon-titled sections), with the Mihrab logo and
+ * site link at the bottom as discreet promotion.
+ * layout="screen" adapts to the window; layout="print" is a fixed A4 page used to export PNG / PDF.
+ */
+
+export const SITE_URL = 'hichamion.github.io/mihrab';
+
+const AVAILABILITY: Record<ImamProfile['availabilityState'], string> = {
+  available_now: 'متاح فوراً لصلاة التراويح أو للتعاقد الدائم',
+  busy_ramadan: 'ملتزم في رمضان، ومتاح للتعاقد بعده',
+  paused: 'غير متاح حالياً',
+};
+
+const GERMAN_DOTS: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
+
+const splitList = (v: string) =>
+  v
+    .split(/[،,;\n]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+interface Props {
+  imam: ImamProfile;
+  /** Contact details, only when the viewer may see them. */
+  contact: ImamContact | null;
+  layout: 'screen' | 'print';
+  /** Public profile link for the QR code (approved profiles only). */
+  profileUrl?: string;
+  /** Screen layout: replaces the contact rows (e.g. the interactive contact block or a "locked" notice). */
+  contactSlot?: React.ReactNode;
+  /** Screen layout: replaces the recitation link (e.g. an embedded video). */
+  recitationSlot?: React.ReactNode;
+}
+
+const SideTitle: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+  <div className="flex items-center gap-2.5 border-b border-white/15 pb-2">
+    <span className="w-9 h-9 rounded-xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center text-amber-300">
+      {icon}
+    </span>
+    <h3 className="text-amber-300 font-black text-base">{children}</h3>
+  </div>
+);
+
+const Ribbon: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+  <div className="flex items-center gap-3">
+    <h3 className="inline-flex items-center gap-2 bg-[#0b3a4f] text-white font-black text-sm px-4 py-2 rounded-l-2xl rounded-tr-2xl shadow-sm">
+      <span className="text-amber-300">{icon}</span>
+      {children}
+    </h3>
+    <span className="h-px bg-[#0b3a4f]/30 flex-1" />
+    <span className="w-2 h-2 rounded-full bg-[#0b3a4f]/50" />
+  </div>
+);
+
+const Row: React.FC<{ label: string; value: string }> = ({ label, value }) =>
+  value.trim() ? (
+    <div className="flex gap-3 text-sm leading-relaxed">
+      <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 shrink-0" />
+      <span className="font-black text-slate-800 shrink-0">{label}:</span>
+      <span className="text-slate-700 break-words min-w-0">{value}</span>
+    </div>
+  ) : null;
+
+const ContactLine: React.FC<{ icon: React.ReactNode; value: string; ltr?: boolean }> = ({ icon, value, ltr }) =>
+  value.trim() ? (
+    <div className="flex items-center gap-3 text-sm">
+      <span className="w-8 h-8 rounded-full bg-white/10 ring-1 ring-white/20 flex items-center justify-center text-amber-300 shrink-0">
+        {icon}
+      </span>
+      <span dir={ltr ? 'ltr' : undefined} className="break-all">
+        {value}
+      </span>
+    </div>
+  ) : null;
+
+export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
+  ({ imam, contact, layout, profileUrl, contactSlot, recitationSlot }, ref) => {
+    const print = layout === 'print';
+    const [qr, setQr] = useState('');
+    const qrTarget = profileUrl || `https://${SITE_URL}/`;
+
+    useEffect(() => {
+      let cancelled = false;
+      import('qrcode')
+        .then((QR) => QR.toDataURL(qrTarget, { margin: 1, width: 220, color: { dark: '#0b3a4f', light: '#ffffff' } }))
+        .then((url) => !cancelled && setQr(url))
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }, [qrTarget]);
+
+    const languages = splitList(imam.languages);
+    const germanDots = GERMAN_DOTS[imam.germanLevel] ?? 0;
+    const youtube = safeHttpUrl(imam.youtubeUrl);
+
+    const qualifications = [
+      `رواية ${imam.riwaya}`,
+      ...splitList(imam.degree),
+      imam.hasCerts === 'yes' ? 'حاصل على شواهد / إجازات' : '',
+    ].filter(Boolean);
+
+    return (
+      <div
+        ref={ref}
+        dir="rtl"
+        className={`relative bg-[#f7f9fa] text-slate-900 overflow-hidden flex ${
+          print ? 'w-[794px] min-h-[1123px] flex-row' : 'w-full flex-col md:flex-row rounded-3xl'
+        }`}
+        style={{ fontFamily: "'Cairo', system-ui, sans-serif" }}
+      >
+        {/* ---------------- Side column ---------------- */}
+        <aside
+          className={`relative z-10 bg-gradient-to-b from-[#0e4d64] via-[#0b3a4f] to-[#082a3a] text-white px-6 py-8 space-y-7 shrink-0 ${
+            print ? 'w-[290px] rounded-bl-[2.5rem]' : 'w-full md:w-[290px] md:rounded-bl-[2.5rem]'
+          }`}
+        >
+          {/* Photo in a gold ring */}
+          <div className="flex justify-center">
+            <div className="relative p-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 shadow-xl">
+              <img
+                src={getSafeImamAvatar(imam.photo)}
+                alt={imam.name}
+                className="w-40 h-40 rounded-full object-cover border-4 border-[#0b3a4f] bg-white"
+              />
+              {imam.isVerified && (
+                <span className="absolute bottom-2 right-2 bg-emerald-500 text-white text-xs font-black px-2 py-0.5 rounded-full ring-2 ring-[#0b3a4f]">
+                  ✓ موثق
+                </span>
+              )}
+            </div>
+          </div>
+
+          <section className="space-y-3">
+            <SideTitle icon={<User className="w-5 h-5" />}>المعلومات الشخصية</SideTitle>
+            <ContactLine icon={<User className="w-4 h-4" />} value={imam.age ? `${imam.age} سنة` : ''} />
+            <ContactLine icon={<MapPin className="w-4 h-4" />} value={imam.country} />
+            {contactSlot ?? (
+              <>
+                <ContactLine icon={<Phone className="w-4 h-4" />} value={contact?.phone ?? ''} ltr />
+                <ContactLine icon={<MessageCircle className="w-4 h-4" />} value={contact?.whatsapp ?? ''} ltr />
+                <ContactLine icon={<Mail className="w-4 h-4" />} value={contact?.email ?? ''} ltr />
+              </>
+            )}
+          </section>
+
+          <section className="space-y-3">
+            <SideTitle icon={<BookOpen className="w-5 h-5" />}>المؤهلات القرآنية</SideTitle>
+            <ul className="space-y-2 text-sm">
+              {qualifications.map((q) => (
+                <li key={q} className="flex gap-2.5 leading-relaxed">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 shrink-0" />
+                  <span>{q}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {(languages.length > 0 || germanDots > 0) && (
+            <section className="space-y-3">
+              <SideTitle icon={<Languages className="w-5 h-5" />}>اللغات</SideTitle>
+              <ul className="space-y-2.5 text-sm">
+                {languages.map((l) => (
+                  <li key={l} className="flex gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 shrink-0" />
+                    <span>{l}</span>
+                  </li>
+                ))}
+                {germanDots > 0 && (
+                  <li className="flex items-center justify-between gap-3">
+                    <span>الألمانية ({imam.germanLevel})</span>
+                    <span className="flex gap-1.5" aria-label={`المستوى ${germanDots} من 5`}>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <span key={i} className={`w-3 h-3 rounded-full ${i <= germanDots ? 'bg-amber-400' : 'bg-white/20'}`} />
+                      ))}
+                    </span>
+                  </li>
+                )}
+              </ul>
+            </section>
+          )}
+
+          {qr && (
+            <section className="pt-2 flex flex-col items-center gap-2 text-center">
+              <img data-qr src={qr} alt="رمز QR لملف الإمام على منصة محراب" className="w-28 h-28 rounded-xl bg-white p-1.5" />
+              <p className="text-xs text-white/80 leading-relaxed">امسح الرمز لعرض الملف كاملاً على منصة محراب</p>
+            </section>
+          )}
+        </aside>
+
+        {/* ---------------- Main column ---------------- */}
+        <main className={`relative flex-1 flex flex-col gap-7 px-7 pt-9 ${print ? 'pb-36' : 'pb-32'}`}>
+          <header className="text-center space-y-2">
+            <h1 className="text-4xl font-black text-[#0b3a4f] leading-tight font-amiri">{imam.name}</h1>
+            <p className="text-xl font-black text-amber-600">إمام وقارئ</p>
+            <div className="flex items-center justify-center gap-2" aria-hidden>
+              <span className="h-0.5 w-16 bg-amber-400 rounded" />
+              <span className="w-8 h-2 rounded-b-full bg-amber-500" />
+              <span className="h-0.5 w-16 bg-amber-400 rounded" />
+            </div>
+          </header>
+
+          {imam.cvText.trim() && (
+            <blockquote className="relative px-8 text-slate-700 text-sm leading-loose whitespace-pre-line">
+              <span className="absolute -top-3 right-0 text-5xl leading-none text-amber-500 font-serif" aria-hidden>
+                “
+              </span>
+              {imam.cvText}
+              <span className="absolute -bottom-6 left-0 text-5xl leading-none text-amber-500 font-serif" aria-hidden>
+                ”
+              </span>
+            </blockquote>
+          )}
+
+          <section className="space-y-3">
+            <Ribbon icon={<GraduationCap className="w-5 h-5" />}>المؤهل العلمي</Ribbon>
+            <div className="space-y-2 pr-2">
+              <Row label="المؤهل" value={imam.degree} />
+              <Row label="الرواية" value={imam.riwaya} />
+              <Row label="الشواهد والإجازات" value={imam.hasCerts === 'yes' ? 'نعم' : 'لا'} />
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <Ribbon icon={<Plane className="w-5 h-5" />}>الإقامة والتأشيرة</Ribbon>
+            <div className="space-y-2 pr-2">
+              <Row
+                label="الوضع"
+                value={imam.hasVisa === 'yes' ? 'لديه تأشيرة / إقامة أوروبية' : 'يحتاج إجراءات استقدام من المسجد'}
+              />
+              <Row label="التفاصيل" value={imam.hasVisa === 'yes' ? imam.visaDetails : ''} />
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <Ribbon icon={<CalendarClock className="w-5 h-5" />}>التفرغ</Ribbon>
+            <div className="space-y-2 pr-2">
+              <Row label="الحالة" value={AVAILABILITY[imam.availabilityState] ?? ''} />
+              <Row label="الالتزام في رمضان" value={imam.ramadanNote} />
+              <Row label="متاح للتعاقد ابتداءً من" value={imam.availableAfterDate} />
+            </div>
+          </section>
+
+          {(recitationSlot || youtube) && (
+            <section className="space-y-3">
+              <Ribbon icon={<Video className="w-5 h-5" />}>نموذج من التلاوة</Ribbon>
+              {recitationSlot ?? (
+                <p className="text-sm text-slate-700 pr-2 break-all" dir="ltr">
+                  {youtube}
+                </p>
+              )}
+            </section>
+          )}
+
+          {/* Indirect promotion for whoever receives the CV (e.g. on WhatsApp) */}
+          <aside className="mt-auto rounded-2xl border border-[#0b3a4f]/15 bg-gradient-to-l from-[#e6f6f9] to-white p-4 flex items-center gap-3">
+            <LogoMark className="w-11 h-11" />
+            <p className="text-sm text-slate-700 leading-relaxed">
+              <strong className="text-[#0b3a4f]">تبحث عن إمام أو قارئ لمسجدك؟</strong> تصفّح ملفات الأئمة المعتمدين وانشر
+              إعلانك مجاناً على منصة محراب:{' '}
+              <span dir="ltr" className="font-bold text-[#0e4d64]">
+                {SITE_URL}
+              </span>
+            </p>
+          </aside>
+
+          {/* Footer wave with the platform logo */}
+          <footer className="absolute bottom-0 inset-x-0 h-28" aria-label="منصة محراب">
+            <svg viewBox="0 0 500 110" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" aria-hidden>
+              <path d="M0 40 C 150 95, 330 0, 500 55 L500 110 L0 110 Z" fill="#f2a12c" />
+              <path d="M0 58 C 160 110, 330 15, 500 72 L500 110 L0 110 Z" fill="#0b3a4f" />
+            </svg>
+            <div className="absolute bottom-3 inset-x-5 flex items-center justify-between gap-3 text-white">
+              <div className="flex items-center gap-2">
+                <LogoMark className="w-9 h-9" />
+                <div className="leading-tight">
+                  <p className="font-black text-sm">منصة محراب</p>
+                  <p className="text-[11px] text-white/80">تربط الأئمة والقرّاء بالمساجد في أوروبا</p>
+                </div>
+              </div>
+              <p className="text-xs font-bold text-amber-300" dir="ltr">
+                {SITE_URL}
+              </p>
+            </div>
+          </footer>
+        </main>
+      </div>
+    );
+  }
+);
+ImamCvSheet.displayName = 'ImamCvSheet';

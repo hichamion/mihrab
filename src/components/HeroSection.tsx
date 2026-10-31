@@ -72,12 +72,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* GREEN BOX: Available Imams List */}
           <div
             {...cardLink(onOpenImamList)}
-            className="relative overflow-hidden isolate bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-900 text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 border border-white/10 ring-1 ring-white/5 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
+            className="relative overflow-hidden isolate glass-card bg-gradient-to-br from-[#4fd1e8] via-[#1aa3bf] to-[#0b5f7a] text-white rounded-[2rem] p-7 sm:p-9 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
           >
-            <CardBackground photo={HERO_PHOTOS.imams} art={<DuaArt />} tint="from-emerald-900/60 via-emerald-800/10 to-emerald-950/85" />
+            <CardBackground photo={HERO_PHOTOS.imams} art={<DuaArt />} tint="from-[#0b5f7a]/55 via-[#1aa3bf]/5 to-[#073c50]/90" />
             <div className="space-y-5 text-center sm:text-right">
               <div className="flex items-center justify-end">
-                <span className="text-emerald-100 text-sm font-bold tabular-nums">
+                <span className="glass rounded-full px-3 py-1 text-white text-sm font-bold tabular-nums">
                   {imamsCount > 0 ? `${imamsCount} إمام متاح حالياً` : 'كن أول إمام يسجّل في محراب'}
                 </span>
               </div>
@@ -86,16 +86,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-maghribi drop-shadow">
                   قائمة الأئمة المتوفرين
                 </h2>
-                <p className="text-sm text-emerald-100/90 leading-relaxed">
+                <p className="text-sm text-cyan-50/95 leading-relaxed">
                   ملفات الأئمة والقرّاء المتاحين مع رواياتهم وتلاواتهم، أو سجّل ملفك كإمام.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3 pt-8 mt-6 border-t border-emerald-600/50">
+            <div className="space-y-3 pt-8 mt-6 border-t border-white/20">
               <button
                 onClick={stop(onOpenImamList)}
-                className="w-full bg-white hover:bg-emerald-50 text-emerald-950 font-black py-4 px-6 rounded-2xl text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                className="w-full glass-light hover:bg-white text-[#0b4a5f] font-black py-4 px-6 rounded-2xl text-sm sm:text-base transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
               >
                 <span>عرض قائمة الأئمة المتوفرين</span>
                 <ArrowLeft className="w-5 h-5" />
@@ -103,7 +103,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               <button
                 onClick={stop(onOpenImamAddModal)}
-                className="w-full bg-emerald-950/60 hover:bg-emerald-950 text-emerald-100 font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm border border-emerald-500/40 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                className="w-full glass hover:bg-white/20 text-white font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>التسجيل كإمام جديد</span>
@@ -114,12 +114,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* LIGHT BLUE GRADIENT BOX: Available Mosques & Associations List */}
           <div
             {...cardLink(onOpenMosqueList)}
-            className="relative overflow-hidden isolate bg-gradient-to-br from-sky-800 via-blue-700 to-blue-900 text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 border border-white/10 ring-1 ring-white/5 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
+            className="relative overflow-hidden isolate glass-card bg-gradient-to-br from-[#2fbf7a] via-[#12804c] to-[#05472b] text-white rounded-[2rem] p-7 sm:p-9 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
           >
-            <CardBackground photo={HERO_PHOTOS.mosques} art={<MihrabArt />} tint="from-blue-800/60 via-blue-700/10 to-blue-900/90" />
+            <CardBackground photo={HERO_PHOTOS.mosques} art={<MihrabArt />} tint="from-[#05472b]/55 via-[#12804c]/5 to-[#032e1c]/90" />
             <div className="space-y-5 text-center sm:text-right">
               <div className="flex items-center justify-end">
-                <span className="text-sky-100 text-sm font-bold tabular-nums">
+                <span className="glass rounded-full px-3 py-1 text-white text-sm font-bold tabular-nums">
                   {mosquesCount > 0 ? `${mosquesCount} مسجد يبحث عن إمام` : 'انشر أول إعلان على محراب'}
                 </span>
               </div>
@@ -128,16 +128,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-maghribi drop-shadow">
                   قائمة المساجد والجمعيات
                 </h2>
-                <p className="text-sm text-sky-100/95 leading-relaxed">
+                <p className="text-sm text-green-50/95 leading-relaxed">
                   المساجد والجمعيات التي تبحث عن إمام وشروطها، أو انشر إعلان مسجدك.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3 pt-8 mt-6 border-t border-sky-400/40">
+            <div className="space-y-3 pt-8 mt-6 border-t border-white/20">
               <button
                 onClick={stop(onOpenMosqueList)}
-                className="w-full bg-white hover:bg-sky-50 text-sky-950 font-black py-4 px-6 rounded-2xl text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                className="w-full glass-light hover:bg-white text-[#06472b] font-black py-4 px-6 rounded-2xl text-sm sm:text-base transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
               >
                 <span>عرض قائمة المساجد المتوفرة</span>
                 <ArrowLeft className="w-5 h-5" />
@@ -145,7 +145,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               <button
                 onClick={stop(onOpenMosqueAddModal)}
-                className="w-full bg-sky-950/50 hover:bg-sky-950/80 text-white font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm border border-sky-300/40 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                className="w-full glass hover:bg-white/20 text-white font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>إضافة إعلان مسجد جديد</span>
@@ -160,7 +160,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {showStats && (
           <button
             onClick={onOpenDashboard}
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white border border-white/20 backdrop-blur text-xs sm:text-sm font-bold px-5 py-2.5 rounded-full transition cursor-pointer whitespace-nowrap"
+            className="inline-flex items-center gap-2 glass hover:bg-white/20 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-full transition cursor-pointer whitespace-nowrap"
           >
             <BarChart3 className="w-4 h-4 text-amber-300" />
             <span>إحصائيات المنصة</span>

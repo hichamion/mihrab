@@ -39,7 +39,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <nav
       aria-label="التنقل الرئيسي"
-      className="lg:hidden fixed bottom-3 inset-x-3 z-40 bg-white/95 backdrop-blur rounded-full shadow-2xl shadow-black/25 border border-slate-200 px-2 py-1.5 flex items-center justify-between"
+      className="lg:hidden fixed bottom-3 inset-x-3 z-40 glass-light rounded-full px-2 py-1.5 flex items-center justify-between"
     >
       {items.map(({ key, label, icon: Icon, active, onClick }) => (
         <button

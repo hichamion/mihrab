@@ -64,13 +64,15 @@ service cloud.firestore {
 
     // ---------- imams ----------
     function validImam(d) {
-      return d.keys().hasOnly(['ownerUid', 'name', 'age', 'country', 'hasVisa', 'visaDetails', 'hasCerts', 'degree',
+      return d.keys().hasOnly(['ownerUid', 'name', 'age', 'country', 'nationality', 'titles', 'hasVisa', 'visaDetails', 'hasCerts', 'degree',
                                'riwaya', 'languages', 'germanLevel', 'youtubeUrl', 'cvText', 'availabilityState',
                                'ramadanNote', 'availableAfterDate', 'photo', 'visaFilePath', 'visaFileName',
                                'certsFilePath', 'certsFileName', 'approvalStatus', 'isVerified', 'createdAt', 'updatedAt'])
         && nonEmpty(d.name, 120)
         && d.age is int && d.age >= 18 && d.age <= 90
         && nonEmpty(d.country, 120)
+        && str(d.get('nationality', ''), 80)
+        && d.get('titles', []) is list && d.get('titles', []).size() <= 8
         && d.hasVisa in ['yes', 'no']
         && d.hasCerts in ['yes', 'no']
         && str(d.visaDetails, 500)
@@ -132,7 +134,7 @@ service cloud.firestore {
     function validMosque(d) {
       return d.keys().hasOnly(['ownerUid', 'mosqueName', 'legalName', 'country', 'city', 'fullAddress', 'lookingType',
                                'riwayaRequired', 'activeState', 'requirements', 'details', 'salaryAndBenefits',
-                               'housingProvided', 'approvalStatus', 'createdAt', 'updatedAt'])
+                               'housingProvided', 'photo', 'approvalStatus', 'createdAt', 'updatedAt'])
         && nonEmpty(d.mosqueName, 150)
         && str(d.legalName, 200)
         && nonEmpty(d.country, 100)
@@ -145,6 +147,7 @@ service cloud.firestore {
         && str(d.details, 5000)
         && str(d.salaryAndBenefits, 500)
         && d.housingProvided is bool
+        && str(d.get('photo', ''), 200000)
         && d.approvalStatus in ['pending', 'approved', 'rejected'];
     }
 
@@ -170,11 +173,13 @@ service cloud.firestore {
     }
 
     match /mosqueContacts/{mosqueId} {
-      // Any registered imam or mosque may contact a mosque.
+      // Like imam contacts: only the owner, admins and imams whose profile the admins approved.
       allow get: if signedIn() && (resource == null
         || resource.data.ownerUid == me()
         || isAdmin()
-        || hasProfile());
+        || (isImamUser()
+            && exists(/databases/$(database)/documents/imams/$(me()))
+            && get(/databases/$(database)/documents/imams/$(me())).data.approvalStatus == 'approved'));
       allow list: if isAdmin();
       allow create, update: if signedIn()
         && incoming().keys().hasOnly(['ownerUid', 'contactPerson', 'phone', 'whatsapp', 'email'])

@@ -10,6 +10,9 @@ import {
   isValidEmail,
   isValidPhone,
   safeHttpUrl,
+  IMAM_TITLE_OPTIONS,
+  LANGUAGE_OPTIONS,
+  splitList,
 } from '../utils/helpers';
 import { X, Upload, Video, CheckCircle2, RotateCcw, Loader2 } from 'lucide-react';
 import { useDialog } from '../lib/useDialog';
@@ -29,6 +32,8 @@ const EMPTY_FIELDS: ImamEditableFields = {
   name: '',
   age: 0,
   country: '',
+  nationality: '',
+  titles: ['إمام'],
   hasVisa: 'no',
   visaDetails: '',
   hasCerts: 'no',
@@ -48,6 +53,16 @@ const EMPTY_CONTACT = { phone: '', whatsapp: '', email: '' };
 export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, onSave, initialData, onError }) => {
   const [fields, setFields] = useState<ImamEditableFields>(EMPTY_FIELDS);
   const [contact, setContact] = useState(EMPTY_CONTACT);
+  const [customTitles, setCustomTitles] = useState('');
+  const [otherLangs, setOtherLangs] = useState('');
+  const allTitles = () =>
+    Array.from(new Set([...(fields.titles || []).filter((t) => IMAM_TITLE_OPTIONS.includes(t)), ...splitList(customTitles)]))
+      .map((t) => t.slice(0, 40))
+      .slice(0, 8);
+  const allLanguages = () =>
+    Array.from(new Set([...splitList(fields.languages).filter((l) => LANGUAGE_OPTIONS.includes(l)), ...splitList(otherLangs)]))
+      .join('، ')
+      .slice(0, 300);
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [photoChanged, setPhotoChanged] = useState(false);
   const [visaFile, setVisaFile] = useState<File | null>(null);
@@ -66,9 +81,11 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
     setPhotoChanged(false);
     setContact(EMPTY_CONTACT);
     if (initialData) {
-      const { name, age, country, hasVisa, visaDetails, hasCerts, degree, riwaya, languages, germanLevel, youtubeUrl, cvText, availabilityState, ramadanNote, availableAfterDate } = initialData;
+      const { name, age, country, nationality, titles, hasVisa, visaDetails, hasCerts, degree, riwaya, languages, germanLevel, youtubeUrl, cvText, availabilityState, ramadanNote, availableAfterDate } = initialData;
       setFields({
         name, age, country, hasVisa, visaDetails, hasCerts, degree, riwaya,
+        nationality: nationality || '',
+        titles: titles?.length ? titles : ['إمام'],
         languages: languages || '',
         germanLevel: germanLevel || 'none',
         youtubeUrl: youtubeUrl || '',
@@ -78,8 +95,12 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
         availableAfterDate: availableAfterDate || '',
       });
       setPhotoPreview(initialData.photo || '');
+      setCustomTitles((titles || []).filter((t) => !IMAM_TITLE_OPTIONS.includes(t)).join('، '));
+      setOtherLangs(splitList(languages || '').filter((l) => !LANGUAGE_OPTIONS.includes(l)).join('، '));
     } else {
       setFields(EMPTY_FIELDS);
+      setCustomTitles('');
+      setOtherLangs('');
       setContact(EMPTY_CONTACT);
       setPhotoPreview('');
     }
@@ -132,7 +153,9 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
     if (!fields.name.trim()) return 'الاسم مطلوب.';
     const age = Number(fields.age);
     if (!Number.isFinite(age) || age < 18 || age > 90) return 'العمر يجب أن يكون بين 18 و 90 سنة.';
-    if (!fields.country.trim()) return 'البلد مطلوب.';
+    if (!fields.country.trim()) return 'مكان الإقامة الحالي مطلوب.';
+    if (!fields.nationality?.trim()) return 'الجنسية مطلوبة.';
+    if (allTitles().length === 0) return 'اختر صفة واحدة على الأقل (إمام، خطيب، محفظ…).';
     if (!isValidPhone(contact.phone)) return 'رقم الهاتف غير صحيح. اكتبه بالصيغة الدولية مثل +212600000000';
     if (contact.whatsapp && !isValidPhone(contact.whatsapp)) return 'رقم الواتساب غير صحيح.';
     if (!isValidEmail(contact.email)) return 'البريد الإلكتروني غير صحيح.';
@@ -155,11 +178,13 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
           ...fields,
           name: fields.name.trim(),
           country: fields.country.trim(),
+          nationality: (fields.nationality || '').trim().slice(0, 80),
+          titles: allTitles(),
           age: Math.round(Number(fields.age)),
           youtubeUrl: fields.youtubeUrl.trim(),
           visaDetails: fields.visaDetails.trim(),
           degree: fields.degree.trim(),
-          languages: fields.languages.trim(),
+          languages: allLanguages(),
           cvText: fields.cvText.trim(),
         },
         {
@@ -182,6 +207,14 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
 
   const embedPreview = getYoutubeEmbedUrl(fields.youtubeUrl || '');
   const shownPhoto = getSafeImamAvatar(photoPreview);
+  // Ticked titles / languages are kept in fields; what the imam types is kept apart and merged on save.
+  const knownTitles = (fields.titles || []).filter((t) => IMAM_TITLE_OPTIONS.includes(t));
+  const toggleTitle = (t: string) =>
+    set('titles', knownTitles.includes(t) ? knownTitles.filter((x) => x !== t) : [...knownTitles, t]);
+  const knownLangs = splitList(fields.languages).filter((l) => LANGUAGE_OPTIONS.includes(l));
+  const toggleLang = (l: string) =>
+    set('languages', (knownLangs.includes(l) ? knownLangs.filter((x) => x !== l) : [...knownLangs, l]).join('، '));
+
   const inputCls = 'w-full border border-slate-300 rounded-xl px-3 py-2 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500';
 
   return (
@@ -226,12 +259,37 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
                   className={inputCls} />
               </div>
               <div>
-                <label htmlFor="im-country" className="block font-bold text-slate-700 mb-1">البلد والمدينة الحالية *</label>
-                <input id="im-country" type="text" required maxLength={120} value={fields.country}
-                  onChange={(e) => set('country', e.target.value)} placeholder="مثال: المغرب - فاس"
+                <label htmlFor="im-nationality" className="block font-bold text-slate-700 mb-1">الجنسية *</label>
+                <input id="im-nationality" type="text" required maxLength={80} value={fields.nationality || ''}
+                  onChange={(e) => set('nationality', e.target.value)} placeholder="مثال: مغربي"
                   className={`${inputCls} font-semibold`} />
               </div>
             </div>
+
+            <div>
+              <label htmlFor="im-country" className="block font-bold text-slate-700 mb-1">مكان الإقامة الحالي (المدينة والبلد) *</label>
+              <input id="im-country" type="text" required maxLength={120} value={fields.country}
+                onChange={(e) => set('country', e.target.value)} placeholder="مثال: فاس، المغرب — أو: كولونيا، ألمانيا"
+                className={`${inputCls} font-semibold`} />
+            </div>
+
+            <fieldset className="space-y-2">
+              <legend className="block font-bold text-slate-700 mb-1">الصفة (يمكن اختيار أكثر من واحدة) *</legend>
+              <div className="flex flex-wrap gap-2">
+                {IMAM_TITLE_OPTIONS.map((t) => {
+                  const on = knownTitles.includes(t);
+                  return (
+                    <button key={t} type="button" aria-pressed={on} onClick={() => toggleTitle(t)}
+                      className={`px-3.5 py-2 rounded-full border-2 font-bold text-xs transition cursor-pointer ${on ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-400'}`}>
+                      {on ? '✓ ' : ''}{t}
+                    </button>
+                  );
+                })}
+              </div>
+              <input type="text" maxLength={120} value={customTitles} onChange={(e) => setCustomTitles(e.target.value)}
+                placeholder="صفة أخرى (اختياري)، مثل: مؤذن، واعظ، مدرّس تجويد — افصل بينها بفاصلة"
+                aria-label="صفات أخرى" className={inputCls} />
+            </fieldset>
 
             <div className="pt-3 border-t border-slate-200/80">
               <p className="block font-bold text-slate-700 mb-2">الصورة الشخصية (اختيارية):</p>
@@ -356,12 +414,23 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="im-lang" className="block font-bold text-emerald-900 mb-1">اللغات المتقنة</label>
-                <input id="im-lang" type="text" maxLength={300} value={fields.languages}
-                  onChange={(e) => set('languages', e.target.value)} placeholder="مثال: العربية، الفرنسية (B2)"
+              <fieldset className="md:col-span-2 space-y-2">
+                <legend className="block font-bold text-emerald-900 mb-1">اللغات التي يتقنها</legend>
+                <div className="flex flex-wrap gap-2">
+                  {LANGUAGE_OPTIONS.map((l) => {
+                    const on = knownLangs.includes(l);
+                    return (
+                      <button key={l} type="button" aria-pressed={on} onClick={() => toggleLang(l)}
+                        className={`px-3.5 py-2 rounded-full border-2 font-bold text-xs transition cursor-pointer ${on ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-400'}`}>
+                        {on ? '✓ ' : ''}{l}
+                      </button>
+                    );
+                  })}
+                </div>
+                <input id="im-lang" type="text" maxLength={200} value={otherLangs} onChange={(e) => setOtherLangs(e.target.value)}
+                  placeholder="لغات أخرى (اختياري)، افصل بينها بفاصلة"
                   className="w-full border border-emerald-300 rounded-xl px-3 py-2 bg-white" />
-              </div>
+              </fieldset>
               <div>
                 <label htmlFor="im-de" className="block font-bold text-emerald-900 mb-1">شهادة اللغة الألمانية</label>
                 <select id="im-de" value={fields.germanLevel} onChange={(e) => set('germanLevel', e.target.value)}

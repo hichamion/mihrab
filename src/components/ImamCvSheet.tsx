@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   BookOpen,
+  Flag,
   CalendarClock,
   GraduationCap,
   Languages,
@@ -13,7 +14,7 @@ import {
   Video,
 } from 'lucide-react';
 import { ImamContact, ImamProfile } from '../types';
-import { getSafeImamAvatar, safeHttpUrl } from '../utils/helpers';
+import { getSafeImamAvatar, imamTitle, safeHttpUrl } from '../utils/helpers';
 import { LogoMark } from './Logo';
 
 /*
@@ -31,7 +32,7 @@ const AVAILABILITY: Record<ImamProfile['availabilityState'], string> = {
   paused: 'غير متاح حالياً',
 };
 
-const GERMAN_DOTS: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5, C2: 5 };
+const GERMAN_DOTS: Record<string, number> = { A1: 1, A2: 2, B1: 3, B2: 4, 'B2+': 4, C1: 5, C2: 5 };
 
 const splitList = (v: string) =>
   v
@@ -52,7 +53,7 @@ interface Props {
   recitationSlot?: React.ReactNode;
 }
 
-const SideTitle: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+export const SideTitle: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
   <div className="flex items-center gap-2.5 border-b border-white/15 pb-2">
     <span className="w-9 h-9 rounded-xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center text-amber-300">
       {icon}
@@ -61,18 +62,64 @@ const SideTitle: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> 
   </div>
 );
 
-const Ribbon: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+/** Section title on a coloured ribbon with a line running to the edge. `tone` is the ribbon colour. */
+export const Ribbon: React.FC<{ icon: React.ReactNode; children: React.ReactNode; tone?: string }> = ({
+  icon,
+  children,
+  tone = '#0b3a4f',
+}) => (
   <div className="flex items-center gap-3">
-    <h3 className="inline-flex items-center gap-2 bg-[#0b3a4f] text-white font-black text-sm px-4 py-2 rounded-l-2xl rounded-tr-2xl shadow-sm">
+    <h3
+      className="inline-flex items-center gap-2 text-white font-black text-sm px-4 py-2 rounded-l-2xl rounded-tr-2xl shadow-sm"
+      style={{ backgroundColor: tone }}
+    >
       <span className="text-amber-300">{icon}</span>
       {children}
     </h3>
-    <span className="h-px bg-[#0b3a4f]/30 flex-1" />
-    <span className="w-2 h-2 rounded-full bg-[#0b3a4f]/50" />
+    <span className="h-px flex-1 opacity-30" style={{ backgroundColor: tone }} />
+    <span className="w-2 h-2 rounded-full opacity-50" style={{ backgroundColor: tone }} />
   </div>
 );
 
-const Row: React.FC<{ label: string; value: string }> = ({ label, value }) =>
+/** Gold and coloured wave at the bottom of the sheet, with the Mihrab logo and link (discreet promotion). */
+export const CvFooter: React.FC<{ tone?: string }> = ({ tone = '#0b3a4f' }) => (
+  <footer className="absolute bottom-0 inset-x-0 h-28" aria-label="منصة محراب">
+    <svg viewBox="0 0 500 110" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" aria-hidden>
+      <path d="M0 40 C 150 95, 330 0, 500 55 L500 110 L0 110 Z" fill="#f2a12c" />
+      <path d="M0 58 C 160 110, 330 15, 500 72 L500 110 L0 110 Z" fill={tone} />
+    </svg>
+    <div className="absolute bottom-3 inset-x-5 flex items-center justify-between gap-3 text-white">
+      <div className="flex items-center gap-2">
+        <LogoMark className="w-9 h-9" />
+        <div className="leading-tight">
+          <p className="font-black text-sm">منصة محراب</p>
+          <p className="text-[11px] text-white/80">تربط الأئمة والقرّاء بالمساجد في أوروبا</p>
+        </div>
+      </div>
+      <p className="text-xs font-bold text-amber-300" dir="ltr">
+        {SITE_URL}
+      </p>
+    </div>
+  </footer>
+);
+
+/** QR code (data URL) pointing to `target`, generated on demand. */
+export function useQrCode(target: string, dark = '#0b3a4f') {
+  const [qr, setQr] = useState('');
+  useEffect(() => {
+    let cancelled = false;
+    import('qrcode')
+      .then((QR) => QR.toDataURL(target, { margin: 1, width: 220, color: { dark, light: '#ffffff' } }))
+      .then((url) => !cancelled && setQr(url))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [target, dark]);
+  return qr;
+}
+
+export const Row: React.FC<{ label: string; value: string }> = ({ label, value }) =>
   value.trim() ? (
     <div className="flex gap-3 text-sm leading-relaxed">
       <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 shrink-0" />
@@ -81,7 +128,7 @@ const Row: React.FC<{ label: string; value: string }> = ({ label, value }) =>
     </div>
   ) : null;
 
-const ContactLine: React.FC<{ icon: React.ReactNode; value: string; ltr?: boolean }> = ({ icon, value, ltr }) =>
+export const ContactLine: React.FC<{ icon: React.ReactNode; value: string; ltr?: boolean }> = ({ icon, value, ltr }) =>
   value.trim() ? (
     <div className="flex items-center gap-3 text-sm">
       <span className="w-8 h-8 rounded-full bg-white/10 ring-1 ring-white/20 flex items-center justify-center text-amber-300 shrink-0">
@@ -96,19 +143,8 @@ const ContactLine: React.FC<{ icon: React.ReactNode; value: string; ltr?: boolea
 export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
   ({ imam, contact, layout, profileUrl, contactSlot, recitationSlot }, ref) => {
     const print = layout === 'print';
-    const [qr, setQr] = useState('');
     const qrTarget = profileUrl || `https://${SITE_URL}/`;
-
-    useEffect(() => {
-      let cancelled = false;
-      import('qrcode')
-        .then((QR) => QR.toDataURL(qrTarget, { margin: 1, width: 220, color: { dark: '#0b3a4f', light: '#ffffff' } }))
-        .then((url) => !cancelled && setQr(url))
-        .catch(() => {});
-      return () => {
-        cancelled = true;
-      };
-    }, [qrTarget]);
+    const qr = useQrCode(qrTarget);
 
     const languages = splitList(imam.languages);
     const germanDots = GERMAN_DOTS[imam.germanLevel] ?? 0;
@@ -154,7 +190,8 @@ export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
           <section className="space-y-3">
             <SideTitle icon={<User className="w-5 h-5" />}>المعلومات الشخصية</SideTitle>
             <ContactLine icon={<User className="w-4 h-4" />} value={imam.age ? `${imam.age} سنة` : ''} />
-            <ContactLine icon={<MapPin className="w-4 h-4" />} value={imam.country} />
+            <ContactLine icon={<Flag className="w-4 h-4" />} value={imam.nationality ? `الجنسية: ${imam.nationality}` : ''} />
+            <ContactLine icon={<MapPin className="w-4 h-4" />} value={imam.country ? `مقيم في: ${imam.country}` : ''} />
             {contactSlot ?? (
               <>
                 <ContactLine icon={<Phone className="w-4 h-4" />} value={contact?.phone ?? ''} ltr />
@@ -212,7 +249,7 @@ export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
         <main className={`relative flex-1 flex flex-col gap-7 px-7 pt-9 ${print ? 'pb-36' : 'pb-32'}`}>
           <header className="text-center space-y-2">
             <h1 className="text-4xl font-black text-[#0b3a4f] leading-tight font-amiri">{imam.name}</h1>
-            <p className="text-xl font-black text-amber-600">إمام وقارئ</p>
+            <p className="text-xl font-black text-amber-600">{imamTitle(imam.titles)}</p>
             <div className="flex items-center justify-center gap-2" aria-hidden>
               <span className="h-0.5 w-16 bg-amber-400 rounded" />
               <span className="w-8 h-2 rounded-b-full bg-amber-500" />
@@ -284,25 +321,7 @@ export const ImamCvSheet = React.forwardRef<HTMLDivElement, Props>(
             </p>
           </aside>
 
-          {/* Footer wave with the platform logo */}
-          <footer className="absolute bottom-0 inset-x-0 h-28" aria-label="منصة محراب">
-            <svg viewBox="0 0 500 110" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" aria-hidden>
-              <path d="M0 40 C 150 95, 330 0, 500 55 L500 110 L0 110 Z" fill="#f2a12c" />
-              <path d="M0 58 C 160 110, 330 15, 500 72 L500 110 L0 110 Z" fill="#0b3a4f" />
-            </svg>
-            <div className="absolute bottom-3 inset-x-5 flex items-center justify-between gap-3 text-white">
-              <div className="flex items-center gap-2">
-                <LogoMark className="w-9 h-9" />
-                <div className="leading-tight">
-                  <p className="font-black text-sm">منصة محراب</p>
-                  <p className="text-[11px] text-white/80">تربط الأئمة والقرّاء بالمساجد في أوروبا</p>
-                </div>
-              </div>
-              <p className="text-xs font-bold text-amber-300" dir="ltr">
-                {SITE_URL}
-              </p>
-            </div>
-          </footer>
+          <CvFooter />
         </main>
       </div>
     );

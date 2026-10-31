@@ -3,7 +3,8 @@ import { ImamProfile, MosqueJob, Application, UserRole, AvailabilityState } from
 import { formatDate, getSafeImamAvatar } from '../utils/helpers';
 import { InboxCenter, InboxProps } from './InboxCenter';
 import { ContactBlock } from './ContactBlock';
-import { Edit3, Eye, Trash2, Send, MapPin, Check, Flag, Plus, Clock, XCircle } from 'lucide-react';
+import { MosqueMiniCard } from './MiniCards';
+import { Edit3, Eye, Trash2, Plus, Clock, XCircle } from 'lucide-react';
 
 type Tab = 'manage' | 'mosque_ads' | 'applications' | 'inbox';
 
@@ -21,6 +22,10 @@ interface ImamPortalProps {
   onSaveQuickRamadan: (id: string, ramadanNote: string, afterDate: string) => void;
   onApplyToMosque: (mosque: MosqueJob) => void;
   onReportMosque: (mosque: MosqueJob) => void;
+  /** Opens the mosque's full card (CV-style ad with download / share). */
+  onViewMosque: (mosque: MosqueJob) => void;
+  /** Admin or imam with an approved profile (same rule as firestore.rules). */
+  canSeeMosqueContacts: boolean;
   inbox: InboxProps;
   initialTab?: Tab;
   /** Changes on every tab request from the parent (see App). */
@@ -48,6 +53,8 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
   onSaveQuickRamadan,
   onApplyToMosque,
   onReportMosque,
+  onViewMosque,
+  canSeeMosqueContacts,
   inbox,
   initialTab = 'mosque_ads',
   tabRequest = 0,
@@ -298,87 +305,33 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredMosques.map((m) => {
               const alreadyApplied = myApplications.some((app) => app.mosqueId === m.id);
-
               return (
-                <div
+                <MosqueMiniCard
                   key={m.id}
-                  className="bg-white rounded-2xl border border-slate-200 hover:border-sky-400 transition p-5 sm:p-6 flex flex-col justify-between text-xs space-y-4 shadow-2xs"
-                >
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-xs font-bold text-sky-700">{m.lookingType}</span>
-                      <h4 className="text-lg font-black text-slate-900 mt-0.5 font-amiri">{m.mosqueName}</h4>
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 mt-0.5">
-                        <MapPin className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                        <span>
-                          {m.country} · {m.city}
-                        </span>
-                        <span aria-hidden="true">·</span>
-                        <span className="text-sky-800 font-bold">الرواية: {m.riwayaRequired}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-slate-600 leading-relaxed text-xs whitespace-pre-line">{m.details}</p>
-
-                    {m.requirements?.length > 0 && (
-                      <ul className="text-xs text-slate-600 list-disc pr-4 space-y-0.5">
-                        {m.requirements.map((r) => (
-                          <li key={r}>{r}</li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {m.salaryAndBenefits && (
-                      <p className="text-xs text-emerald-900 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200/70">
-                        <strong>السكن والمزايا:</strong> {m.salaryAndBenefits}
-                        {' · '}
-                        {m.housingProvided ? 'يتوفر سكن' : 'بدل سكن'}
-                      </p>
-                    )}
-
+                  mosque={m}
+                  onOpen={() => onViewMosque(m)}
+                  onReport={() => onReportMosque(m)}
+                  apply={
+                    isImam
+                      ? { label: alreadyApplied ? 'تم التقديم' : 'التقديم', done: alreadyApplied, onClick: () => onApplyToMosque(m) }
+                      : currentRole === 'visitor'
+                      ? { label: 'سجّل دخولك للتقديم', done: false, onClick: onOpenAuthModal }
+                      : undefined
+                  }
+                  contactBlock={
                     <ContactBlock
                       kind="mosque"
                       id={m.id}
-                      canView={isLoggedIn}
-                      lockedText="سجّل دخولك لإظهار هاتف المسجد والواتساب"
-                      onLockedClick={onOpenAuthModal}
+                      canView={canSeeMosqueContacts}
+                      lockedText={
+                        isLoggedIn
+                          ? 'بيانات تواصل المسجد تظهر للأئمة الذين اعتمدت الإدارة ملفاتهم'
+                          : 'سجّل دخولك كإمام لإظهار بيانات تواصل المسجد'
+                      }
+                      onLockedClick={isLoggedIn ? undefined : onOpenAuthModal}
                     />
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => onReportMosque(m)}
-                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1 text-xs font-bold"
-                    >
-                      <Flag className="w-3.5 h-3.5" />
-                      <span>إبلاغ</span>
-                    </button>
-
-                    {(isImam || currentRole === 'visitor') && (
-                      <button
-                        onClick={() => (isImam ? onApplyToMosque(m) : onOpenAuthModal())}
-                        disabled={isImam && alreadyApplied}
-                        className={`font-bold px-5 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 text-xs ${
-                          isImam && alreadyApplied
-                            ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
-                            : 'bg-sky-600 hover:bg-sky-500 text-white shadow-xs'
-                        }`}
-                      >
-                        {isImam && alreadyApplied ? (
-                          <>
-                            <Check className="w-4 h-4 text-emerald-600" />
-                            <span>تم التقديم</span>
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-3.5 h-3.5" />
-                            <span>{isImam ? 'التقديم لهذا المسجد' : 'سجّل دخولك للتقديم'}</span>
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </div>
+                  }
+                />
               );
             })}
           </div>

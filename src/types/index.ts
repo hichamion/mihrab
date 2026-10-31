@@ -35,7 +35,12 @@ export interface ImamProfile {
   ownerUid: string;
   name: string;
   age: number;
+  /** Current place of residence (city and country). */
   country: string;
+  /** Nationality, e.g. «مغربي». Optional for profiles created before it existed. */
+  nationality?: string;
+  /** What the imam does: «إمام», «خطيب», «محفظ» and/or titles they typed. */
+  titles?: string[];
   hasVisa: 'yes' | 'no';
   visaDetails: string;
   hasCerts: 'yes' | 'no';
@@ -85,12 +90,14 @@ export interface MosqueJob {
   details: string;
   salaryAndBenefits: string;
   housingProvided: boolean;
+  /** Small compressed JPEG as a data URL (profile picture of the mosque), or '' for the default image. */
+  photo?: string;
   approvalStatus: ApprovalStatus;
   createdAt: string;
   updatedAt?: string;
 }
 
-/** Firestore: mosqueContacts/{mosqueId} — readable by signed-in imams/mosques, the owner and admins. */
+/** Firestore: mosqueContacts/{mosqueId} — readable by the owner, admins and imams with an approved profile. */
 export interface MosqueContact {
   ownerUid: string;
   contactPerson: string;

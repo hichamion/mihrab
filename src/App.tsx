@@ -45,6 +45,7 @@ import { AuthOnboardingModal } from './components/AuthOnboardingModal';
 import { ImamModalForm } from './components/ImamModalForm';
 import { MosqueModalForm } from './components/MosqueModalForm';
 import { ImamFullModal } from './components/ImamFullModal';
+import { MosqueFullModal } from './components/MosqueFullModal';
 import { ApplyModal } from './components/ApplyModal';
 import { InterviewModal, InterviewDetails } from './components/InterviewModal';
 import { ReportModal } from './components/ReportModal';
@@ -87,10 +88,12 @@ const VIEW_TITLES: Record<View, string> = {
   support: 'ادعم المنصة | محراب',
 };
 
-function parseHash(hash: string): { view: View; imamId?: string } {
+function parseHash(hash: string): { view: View; imamId?: string; mosqueId?: string } {
   const h = hash || '#/';
   const imamMatch = h.match(/^#\/imams\/([\w-]+)$/);
   if (imamMatch) return { view: 'mosque', imamId: imamMatch[1] };
+  const mosqueMatch = h.match(/^#\/mosques\/([\w-]+)$/);
+  if (mosqueMatch) return { view: 'imam', mosqueId: mosqueMatch[1] };
   const entry = (Object.entries(VIEW_TO_HASH) as [View, string][]).find(([, v]) => v === h);
   return { view: entry ? entry[0] : 'home' };
 }
@@ -111,6 +114,7 @@ export default function App() {
   const initial = parseHash(window.location.hash);
   const [currentView, setCurrentViewState] = useState<View>(initial.view);
   const [pendingImamLink, setPendingImamLink] = useState<string | undefined>(initial.imamId);
+  const [pendingMosqueLink, setPendingMosqueLink] = useState<string | undefined>(initial.mosqueId);
   // `seq` changes on every request, so asking again for the same tab (e.g. the inbox button)
   // still switches the portal back to it after the user moved to another tab.
   const [imamPortalTab, setImamPortalTabState] = useState<{ tab: ImamTab; seq: number }>({ tab: 'mosque_ads', seq: 0 });
@@ -129,6 +133,7 @@ export default function App() {
       const parsed = parseHash(window.location.hash);
       setCurrentViewState(parsed.view);
       if (parsed.imamId) setPendingImamLink(parsed.imamId);
+      if (parsed.mosqueId) setPendingMosqueLink(parsed.mosqueId);
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
@@ -200,6 +205,8 @@ export default function App() {
   const displayName =
     role === 'imam' && myImam ? myImam.name : profile?.displayName || firebaseUser?.displayName || 'مستخدم محراب';
   const canSeeImamContacts = role === 'admin' || (role === 'mosque' && profile?.verified === true);
+  // Same rule as mosqueContacts in firestore.rules: admins and imams whose profile is approved.
+  const canSeeMosqueContacts = role === 'admin' || (role === 'imam' && myImam?.approvalStatus === 'approved');
 
   // ------------------------------------------------------------------
   // Modals
@@ -210,12 +217,23 @@ export default function App() {
   const [isMosqueModalOpen, setIsMosqueModalOpen] = useState(false);
   const [editingMosque, setEditingMosque] = useState<MosqueJob | null>(null);
   const [viewingImamFull, setViewingImamFull] = useState<ImamProfile | null>(null);
+  const [viewingMosque, setViewingMosque] = useState<MosqueJob | null>(null);
   const [applyingMosque, setApplyingMosque] = useState<MosqueJob | null>(null);
   const [interviewTarget, setInterviewTarget] = useState<{ application: Application | null; imam: ImamProfile | null } | null>(null);
   const [reportTarget, setReportTarget] = useState<{ type: 'imam' | 'mosque'; id: string; name: string } | null>(null);
 
   // Keep the open profile in sync with live data.
   const liveViewingImam = viewingImamFull ? imams.find((i) => i.id === viewingImamFull.id) ?? viewingImamFull : null;
+
+  const liveViewingMosque = viewingMosque ? mosques.find((m) => m.id === viewingMosque.id) ?? viewingMosque : null;
+
+  // Open a shared mosque link (#/mosques/<id>) once the data is loaded.
+  useEffect(() => {
+    if (!pendingMosqueLink || data.loading) return;
+    const target = mosques.find((m) => m.id === pendingMosqueLink);
+    if (target) setViewingMosque(target);
+    setPendingMosqueLink(undefined);
+  }, [pendingMosqueLink, data.loading, mosques]);
 
   // Open a shared imam link (#/imams/<id>) once the data is loaded.
   useEffect(() => {
@@ -538,6 +556,22 @@ export default function App() {
     }
   };
 
+  // Admin: the same message to many accounts (e.g. all imams), with a single confirmation.
+  const handleBroadcast = async (msgs: NewMessage[]): Promise<boolean> => {
+    let sent = 0;
+    for (const msg of msgs) {
+      try {
+        await sendMessage(msg);
+        sent++;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (sent === msgs.length) showToast(`تم إرسال الرسالة إلى ${sent} حساب.`);
+    else showToast(`أُرسلت الرسالة إلى ${sent} من ${msgs.length}. تعذر الإرسال إلى البقية.`, 'error');
+    return sent > 0;
+  };
+
   const handleMarkAsRead = (id: string) => {
     markMessageRead(id).catch((err) => console.warn(err));
   };
@@ -628,8 +662,9 @@ export default function App() {
   const inboxProps = {
     currentUid: uid ?? '',
     messages,
-    recipientImams: approvedImams.filter((i) => i.ownerUid !== uid),
-    recipientMosques: approvedMosques.filter((m) => m.ownerUid !== uid),
+    // Admins can write to every imam and mosque (pending ones too); others only to approved ones.
+    recipientImams: (role === 'admin' ? imams : approvedImams).filter((i) => i.ownerUid !== uid),
+    recipientMosques: (role === 'admin' ? mosques : approvedMosques).filter((m) => m.ownerUid !== uid),
     onSendMessage: handleSendMessage,
     onMarkAsRead: handleMarkAsRead,
     onDeleteMessage: handleDeleteMessage,
@@ -750,6 +785,8 @@ export default function App() {
                 onSaveQuickRamadan={handleSaveQuickRamadan}
                 onApplyToMosque={handleOpenApplyModal}
                 onReportMosque={handleOpenReportMosque}
+                onViewMosque={setViewingMosque}
+                canSeeMosqueContacts={canSeeMosqueContacts}
                 inbox={{ ...inboxProps, currentName: myImam?.name || displayName }}
                 initialTab={imamPortalTab.tab}
                 tabRequest={imamPortalTab.seq}
@@ -801,7 +838,7 @@ export default function App() {
                 onDeleteFeedback={handleDeleteFeedback}
                 onOpenImamAdd={handleOpenImamAdd}
                 onOpenMosqueAdd={handleOpenMosqueAdd}
-                inbox={{ ...inboxProps, currentName: 'إدارة محراب' }}
+                inbox={{ ...inboxProps, currentName: 'إدارة محراب', onBroadcast: handleBroadcast }}
               />
             )}
 
@@ -889,6 +926,21 @@ export default function App() {
         }}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onCopied={() => showToast('تم نسخ رابط الملف.')}
+        onError={(msg) => showToast(msg, 'error')}
+      />
+
+      <MosqueFullModal
+        mosque={liveViewingMosque}
+        onClose={() => setViewingMosque(null)}
+        currentRole={role}
+        canViewContact={canSeeMosqueContacts || (!!liveViewingMosque && liveViewingMosque.ownerUid === uid)}
+        canEdit={!!liveViewingMosque && (role === 'admin' || liveViewingMosque.ownerUid === uid)}
+        alreadyApplied={!!liveViewingMosque && applications.some((a) => a.mosqueId === liveViewingMosque.id && a.imamUid === uid)}
+        onApply={handleOpenApplyModal}
+        onEdit={handleOpenMosqueEdit}
+        onReport={handleOpenReportMosque}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onCopied={() => showToast('تم نسخ رابط الإعلان.')}
         onError={(msg) => showToast(msg, 'error')}
       />
 

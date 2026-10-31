@@ -65,6 +65,26 @@ export function getSafeImamAvatar(photo?: string): string {
   return DEFAULT_IMAM_SILHOUETTE_AVATAR;
 }
 
+// Default mosque picture: a dome and minaret in gold on royal green.
+const mosqueSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#12804c"/><stop offset="1" stop-color="#05472b"/></linearGradient>
+  <linearGradient id="o" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde7a9"/><stop offset="1" stop-color="#d9831a"/></linearGradient></defs>
+  <rect width="240" height="240" rx="40" fill="url(#g)"/>
+  <path d="M60 190 V130 C60 95 120 70 120 70 C120 70 180 95 180 130 V190 Z" fill="url(#o)" opacity=".95"/>
+  <path d="M120 52 V70" stroke="url(#o)" stroke-width="4"/><circle cx="120" cy="48" r="6" fill="url(#o)"/>
+  <rect x="190" y="80" width="16" height="110" rx="4" fill="url(#o)"/><path d="M186 82 L198 58 L210 82 Z" fill="url(#o)"/>
+  <path d="M100 190 V150 C100 136 120 126 120 126 C120 126 140 136 140 150 V190 Z" fill="#05472b"/>
+  <rect x="40" y="190" width="170" height="10" rx="3" fill="url(#o)"/>
+</svg>`;
+
+export const DEFAULT_MOSQUE_IMAGE = `data:image/svg+xml;utf8,${encodeURIComponent(mosqueSvg)}`;
+
+/** Safe mosque picture: an uploaded compressed image, or the default illustration. */
+export function getSafeMosquePhoto(photo?: string): string {
+  if (photo && /^data:image\/(jpeg|png|webp);base64,/.test(photo)) return photo;
+  return DEFAULT_MOSQUE_IMAGE;
+}
+
 /** Returns the URL only if it is http(s); prevents javascript: links from user input. */
 export function safeHttpUrl(url?: string): string | undefined {
   if (!url) return undefined;
@@ -130,4 +150,23 @@ export function getRiwayaBadgeStyle(riwaya: string): { bg: string; text: string;
     return { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200' };
   }
   return { bg: 'bg-slate-100', text: 'text-slate-800', border: 'border-slate-200' };
+}
+
+/** Roles an imam can tick when creating the profile (they can also type their own). */
+export const IMAM_TITLE_OPTIONS = ['إمام', 'خطيب', 'محفظ'];
+
+/** Languages offered as quick choices in the imam form ("other" languages can be typed). */
+export const LANGUAGE_OPTIONS = ['العربية', 'الفرنسية', 'الألمانية', 'الإنجليزية', 'الهولندية', 'الإسبانية', 'الإيطالية', 'التركية', 'الأمازيغية'];
+
+/** Splits a free-text list ("العربية، الفرنسية") into items. */
+export const splitList = (v: string) =>
+  (v || '')
+    .split(/[،,;\n]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+/** The imam's titles for display, e.g. «إمام • خطيب • محفظ» (older profiles: «إمام وقارئ»). */
+export function imamTitle(titles?: string[]): string {
+  const t = (titles || []).map((x) => x.trim()).filter(Boolean);
+  return t.length ? t.join(' • ') : 'إمام وقارئ';
 }

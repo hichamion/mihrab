@@ -306,6 +306,8 @@ export type ImamEditableFields = Pick<
   | 'name'
   | 'age'
   | 'country'
+  | 'nationality'
+  | 'titles'
   | 'hasVisa'
   | 'visaDetails'
   | 'hasCerts'
@@ -418,6 +420,7 @@ export type MosqueEditableFields = Pick<
   | 'details'
   | 'salaryAndBenefits'
   | 'housingProvided'
+  | 'photo'
 >;
 
 export async function saveMosque(params: {

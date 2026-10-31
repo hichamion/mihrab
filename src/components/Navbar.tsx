@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { UserRole } from '../types';
 import type { View } from '../App';
 import { DEFAULT_IMAM_SILHOUETTE_AVATAR, getSafeImamAvatar } from '../utils/helpers';
+import { LogoMark } from './Logo';
 import {
   Building2,
   Menu,
@@ -33,6 +34,8 @@ interface NavbarProps {
   mosquesCount: number;
   pendingCount: number;
   unreadCount?: number;
+  /** Hide the statistics link until there is enough data to show. */
+  showStats?: boolean;
   onOpenInbox?: () => void;
 }
 
@@ -53,6 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   mosquesCount,
   pendingCount,
   unreadCount = 0,
+  showStats = true,
   onOpenInbox,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -102,11 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => { setCurrentView('home'); setMobileMenuOpen(false); }}
             className="flex items-center gap-2.5 text-right cursor-pointer whitespace-nowrap shrink-0 focus:outline-none"
           >
-            <img
-              src={DEFAULT_IMAM_SILHOUETTE_AVATAR}
-              alt="شعار محراب"
-              className="w-10 h-10 rounded-xl object-cover border border-emerald-700/30 shadow-xs"
-            />
+            <LogoMark className="w-10 h-10 shadow-xs rounded-xl" />
             <span className="text-xl sm:text-2xl font-black tracking-tight text-emerald-950 font-amiri">
               مِحراب
             </span>
@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'border-transparent hover:text-slate-950'
               }`}
             >
-              قائمة الأئمة المتوفرين ({imamsCount})
+              الأئمة المتاحون
             </button>
 
             <button
@@ -144,9 +144,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'border-transparent hover:text-slate-950'
               }`}
             >
-              قائمة المساجد المتوفرة ({mosquesCount})
+              إعلانات المساجد
             </button>
 
+            {showStats && (
             <button
               onClick={() => setCurrentView('dashboard')}
               className={`py-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 border-b-2 ${
@@ -157,6 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               الإحصائيات
             </button>
+            )}
 
             {currentRole === 'admin' && (
               <button
@@ -394,7 +396,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <span>قائمة الأئمة المتوفرين</span>
-              <span className="text-xs text-emerald-700 font-bold">{imamsCount}</span>
+              {imamsCount > 0 && <span className="text-xs text-emerald-700 font-bold">{imamsCount}</span>}
             </button>
 
             <button
@@ -404,9 +406,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <span>قائمة المساجد والجمعيات المتوفرة</span>
-              <span className="text-xs text-sky-700 font-bold">{mosquesCount}</span>
+              {mosquesCount > 0 && <span className="text-xs text-sky-700 font-bold">{mosquesCount}</span>}
             </button>
 
+            {showStats && (
             <button
               onClick={() => { setCurrentView('dashboard'); setMobileMenuOpen(false); }}
               className={`w-full text-right px-4 py-3 rounded-xl ${
@@ -415,6 +418,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               لوحة الإحصائيات
             </button>
+            )}
 
             {currentRole === 'admin' && (
               <button

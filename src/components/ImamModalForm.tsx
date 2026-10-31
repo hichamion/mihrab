@@ -12,6 +12,7 @@ import {
   safeHttpUrl,
 } from '../utils/helpers';
 import { X, Upload, Video, CheckCircle2, RotateCcw, Loader2 } from 'lucide-react';
+import { useDialog } from '../lib/useDialog';
 
 interface ImamModalFormProps {
   isOpen: boolean;
@@ -93,6 +94,8 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
       });
     }
   }, [existingContact, isOpen, initialData]);
+
+  const dialogRef = useDialog(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -185,6 +188,8 @@ export const ImamModalForm: React.FC<ImamModalFormProps> = ({ isOpen, onClose, o
     <div
       className="fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
       role="dialog"
+      ref={dialogRef}
+      tabIndex={-1}
       aria-modal="true"
     >
       <div className="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl my-6 max-h-[92vh] overflow-y-auto text-xs space-y-6">

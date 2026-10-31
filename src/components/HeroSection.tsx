@@ -22,6 +22,8 @@ interface HeroSectionProps {
   imamsCount: number;
   mosquesCount: number;
   pendingCount: number;
+  /** Hide the statistics button until there is enough data. */
+  showStats: boolean;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
@@ -36,6 +38,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   imamsCount,
   mosquesCount,
   pendingCount,
+  showStats,
 }) => {
   return (
     <section className="relative overflow-hidden bg-slate-50 text-slate-900 py-10 sm:py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200/80">
@@ -47,8 +50,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         
         {/* Clean Minimal Header */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <p className="text-xs font-bold text-emerald-800 tracking-wide">
-            المنصة الموثقة للربط الشرعي والمهني بين الأئمة والمساجد
+          <p className="text-sm font-bold text-emerald-800 tracking-wide">
+            منصة للربط بين الأئمة والقرّاء والمساجد في أوروبا
           </p>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-tight font-amiri">
@@ -56,7 +59,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            اختر وجهتك مباشرة من القسمين أدناه لتصفح الأئمة المتوفرين أو المساجد التي تبحث عن إمام
+            إمام أو قارئ يبحث عن مسجد؟ أو مسجد يبحث عن إمام لرمضان أو لعقد دائم؟ ابدأ من هنا.
           </p>
         </div>
 
@@ -73,7 +76,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-300/80 shadow-md"
                 />
                 <span className="text-emerald-100 text-sm font-bold tabular-nums">
-                  {imamsCount} إمام متاح حالياً
+                  {imamsCount > 0 ? `${imamsCount} إمام متاح حالياً` : 'كن أول إمام يسجّل في محراب'}
                 </span>
               </div>
 
@@ -82,7 +85,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   قائمة الأئمة المتوفرين
                 </h2>
                 <p className="text-sm text-emerald-100/90 leading-relaxed">
-                  اضغط هنا لمشاهدة ملفات الأئمة والقرّاء المتاحين والاستماع لتلاواتهم، أو تسجيل ملفك كإمام جديد.
+                  ملفات الأئمة والقرّاء المتاحين مع رواياتهم وتلاواتهم، أو سجّل ملفك كإمام.
                 </p>
               </div>
             </div>
@@ -114,7 +117,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <Building2 className="w-9 h-9 sm:w-10 sm:h-10 text-white" />
                 </div>
                 <span className="text-sky-100 text-sm font-bold tabular-nums">
-                  {mosquesCount} مسجد يبحث عن إمام
+                  {mosquesCount > 0 ? `${mosquesCount} مسجد يبحث عن إمام` : 'انشر أول إعلان على محراب'}
                 </span>
               </div>
 
@@ -123,7 +126,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   قائمة المساجد والجمعيات المتوفرة
                 </h2>
                 <p className="text-sm text-sky-100/95 leading-relaxed">
-                  اضغط هنا لتصفح المساجد والجمعيات التي تبحث عن إمام وشروطها، أو لإضافة إعلان مسجدك.
+                  المساجد والجمعيات التي تبحث عن إمام وشروطها، أو انشر إعلان مسجدك.
                 </p>
               </div>
             </div>
@@ -151,13 +154,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* Clean Secondary Bar for Statistics Dashboard & Quick Login/Admin */}
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          {showStats && (
           <button
             onClick={onOpenDashboard}
             className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl transition shadow-xs cursor-pointer whitespace-nowrap"
           >
             <BarChart3 className="w-4 h-4 text-emerald-700" />
-            <span>لوحة الإحصائيات والمؤشرات البيانية</span>
+            <span>إحصائيات المنصة</span>
           </button>
+          )}
 
           {currentRole === 'visitor' && (
             <button
@@ -165,7 +170,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl transition shadow-xs cursor-pointer whitespace-nowrap"
             >
               <LogIn className="w-4 h-4 text-amber-400" />
-              <span>تسجيل الدخول (جوجل / فيسبوك)</span>
+              <span>تسجيل الدخول</span>
             </button>
           )}
 
@@ -181,6 +186,80 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
       </div>
+
+      <HowItWorks />
     </section>
   );
 };
+
+const STEPS = [
+  {
+    title: 'سجّل دخولك واختر نوع حسابك',
+    text: 'بحساب جوجل، دون كلمة مرور. اختر «إمام / قارئ» أو «مسجد / جمعية».',
+  },
+  {
+    title: 'أنشئ ملفك أو إعلانك',
+    text: 'الإمام: السيرة والرواية ورابط التلاوة وحالة التأشيرة. المسجد: المدينة ونوع الإمام المطلوب والشروط.',
+  },
+  {
+    title: 'تراجعه الإدارة ثم يُنشر',
+    text: 'لا يظهر أي ملف أو إعلان للعموم قبل موافقة الإدارة، حفاظاً على جدية المنصة.',
+  },
+  {
+    title: 'تواصلوا مباشرة',
+    text: 'يتقدم الإمام للإعلان، أو يطلب المسجد مقابلة. أرقام الأئمة لا تظهر إلا للمساجد الموثقة.',
+  },
+];
+
+const FAQ = [
+  {
+    q: 'هل التسجيل مجاني؟',
+    a: 'نعم، التسجيل ونشر الملفات والإعلانات مجاني.',
+  },
+  {
+    q: 'من يرى رقم هاتفي كإمام؟',
+    a: 'لا يظهر رقمك ولا بريدك للزوار. تراه فقط حسابات المساجد التي وثقتها الإدارة، والإدارة نفسها.',
+  },
+  {
+    q: 'متى يصبح حساب المسجد موثقاً؟',
+    a: 'عندما توافق الإدارة على أول إعلان له. عندها يمكنه رؤية بيانات تواصل الأئمة المعتمدين.',
+  },
+  {
+    q: 'هل يمكنني حذف حسابي؟',
+    a: 'نعم، في أي وقت من قائمة الحساب. تُحذف ملفاتك وإعلاناتك ورسائلك نهائياً.',
+  },
+];
+
+const HowItWorks: React.FC = () => (
+  <div id="how-it-works" className="relative z-10 max-w-5xl mx-auto mt-16 space-y-12 scroll-mt-24">
+    <div className="space-y-6">
+      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-amiri text-center">كيف تعمل المنصة؟</h2>
+      <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {STEPS.map((step, i) => (
+          <li key={step.title} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 shadow-xs">
+            <span className="w-8 h-8 rounded-full bg-emerald-700 text-white font-black flex items-center justify-center text-sm">
+              {i + 1}
+            </span>
+            <h3 className="font-black text-slate-900">{step.title}</h3>
+            <p className="text-sm text-slate-600 leading-relaxed">{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div className="space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-amiri text-center">أسئلة شائعة</h2>
+      <div className="space-y-2">
+        {FAQ.map((item) => (
+          <details key={item.q} className="group bg-white border border-slate-200 rounded-2xl px-5 py-4">
+            <summary className="font-bold text-slate-900 cursor-pointer list-none flex justify-between items-center gap-3">
+              <span>{item.q}</span>
+              <span className="text-emerald-700 text-lg transition group-open:rotate-45" aria-hidden>+</span>
+            </summary>
+            <p className="text-sm text-slate-600 leading-relaxed pt-2">{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </div>
+);

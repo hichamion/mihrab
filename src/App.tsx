@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Loader2, X } from 'lucide-react';
 import {
   Application,
@@ -36,10 +36,8 @@ import {
 } from './lib/db';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { Dashboard } from './components/Dashboard';
 import { ImamPortal } from './components/ImamPortal';
 import { MosquePortal } from './components/MosquePortal';
-import { AdminPanel } from './components/AdminPanel';
 import { AuthOnboardingModal } from './components/AuthOnboardingModal';
 import { ImamModalForm } from './components/ImamModalForm';
 import { MosqueModalForm } from './components/MosqueModalForm';
@@ -49,6 +47,11 @@ import { InterviewModal, InterviewDetails } from './components/InterviewModal';
 import { ReportModal } from './components/ReportModal';
 import { PrivacyPage } from './components/PrivacyPage';
 import { Footer } from './components/Footer';
+import { MIN_ITEMS_FOR_STATS } from './config';
+
+// Loaded on demand: the statistics page pulls in the charts library, and the admin panel is for admins only.
+const Dashboard = lazy(() => import('./components/Dashboard').then((m) => ({ default: m.Dashboard })));
+const AdminPanel = lazy(() => import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })));
 
 export type View = 'home' | 'dashboard' | 'imam' | 'mosque' | 'admin' | 'privacy';
 type ImamTab = 'manage' | 'mosque_ads' | 'applications' | 'inbox';
@@ -63,6 +66,15 @@ const VIEW_TO_HASH: Record<View, string> = {
   mosque: '#/imams',
   admin: '#/admin',
   privacy: '#/privacy',
+};
+
+const VIEW_TITLES: Record<View, string> = {
+  home: 'محراب | منصة للربط بين الأئمة والمساجد في أوروبا',
+  dashboard: 'إحصائيات المنصة | محراب',
+  imam: 'إعلانات المساجد | محراب',
+  mosque: 'الأئمة المتاحون | محراب',
+  admin: 'لوحة الإدارة | محراب',
+  privacy: 'سياسة الخصوصية | محراب',
 };
 
 function parseHash(hash: string): { view: View; imamId?: string } {
@@ -112,6 +124,10 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  useEffect(() => {
+    document.title = VIEW_TITLES[currentView];
+  }, [currentView]);
+
   // The admin view is only for admins.
   useEffect(() => {
     if (ready && currentView === 'admin' && role !== 'admin') setCurrentView('home');
@@ -156,6 +172,7 @@ export default function App() {
         mosques.filter((m) => m.approvalStatus === 'pending').length
       : 0;
   const isIncoming = (m: { receiverUid: string }) => m.receiverUid === uid || (role === 'admin' && m.receiverUid === 'admin');
+  const showStats = role === 'admin' || approvedImams.length + approvedMosques.length >= MIN_ITEMS_FOR_STATS;
   const totalUnreadMessages = messages.filter((m) => !m.isRead && isIncoming(m)).length;
 
   const displayName =
@@ -564,6 +581,12 @@ export default function App() {
     setCurrentView('imam');
   };
 
+  const goHowItWorks = () => {
+    setCurrentView('home');
+    // Wait for the home view to render before scrolling to the section.
+    window.setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }), 50);
+  };
+
   const inboxProps = {
     currentUid: uid ?? '',
     messages,
@@ -613,6 +636,7 @@ export default function App() {
         mosquesCount={activeMosquesCount}
         pendingCount={pendingApprovalsCount}
         unreadCount={totalUnreadMessages}
+        showStats={showStats}
         onOpenInbox={
           role === 'imam'
             ? () => {
@@ -631,6 +655,14 @@ export default function App() {
       />
 
       <main className="flex-1 flex flex-col">
+        <Suspense
+          fallback={
+            <div className="flex-1 flex items-center justify-center py-24 text-slate-500 text-sm gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>جاري التحميل…</span>
+            </div>
+          }
+        >
         {data.loading && currentView !== 'home' && currentView !== 'privacy' ? (
           <div className="flex-1 flex items-center justify-center py-24 text-slate-500 text-sm gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -651,6 +683,7 @@ export default function App() {
                 imamsCount={activeImamsCount}
                 mosquesCount={activeMosquesCount}
                 pendingCount={pendingApprovalsCount}
+                showStats={showStats}
               />
             )}
 
@@ -733,12 +766,16 @@ export default function App() {
             {currentView === 'privacy' && <PrivacyPage onBack={() => setCurrentView('home')} />}
           </>
         )}
+      </Suspense>
       </main>
 
       <Footer
         onOpenImamsList={goImamsList}
         onOpenMosquesList={goMosquesList}
         onOpenPrivacy={() => setCurrentView('privacy')}
+        onOpenImamAdd={handleOpenImamAdd}
+        onOpenMosqueAdd={handleOpenMosqueAdd}
+        onOpenHowItWorks={goHowItWorks}
       />
 
       {/* ------------------------------ Modals ------------------------------ */}

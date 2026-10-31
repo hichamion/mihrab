@@ -16,6 +16,7 @@ import {
   Flag,
   Lock,
 } from 'lucide-react';
+import { useDialog } from '../lib/useDialog';
 
 interface ImamFullModalProps {
   imam: ImamProfile | null;
@@ -45,6 +46,8 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
   onOpenAuthModal,
   onCopied,
 }) => {
+  const dialogRef = useDialog(!!imam, onClose);
+
   if (!imam) return null;
 
   const embedUrl = getYoutubeEmbedUrl(imam.youtubeUrl);
@@ -68,6 +71,8 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
     <div
       className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto"
       role="dialog"
+      ref={dialogRef}
+      tabIndex={-1}
       aria-modal="true"
       aria-label={`ملف ${imam.name}`}
       onClick={(e) => e.target === e.currentTarget && onClose()}

@@ -234,7 +234,7 @@ const CardBackground: React.FC<{ photo: string; art: React.ReactNode; tint: stri
 const STEPS = [
   {
     title: 'سجّل دخولك واختر نوع حسابك',
-    text: 'بحساب جوجل، دون كلمة مرور. اختر «إمام / قارئ» أو «مسجد / جمعية».',
+    text: 'بحساب جوجل أو بالبريد الإلكتروني. اختر «إمام / قارئ» أو «مسجد / جمعية».',
   },
   {
     title: 'أنشئ ملفك أو إعلانك',

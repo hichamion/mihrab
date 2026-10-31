@@ -637,5 +637,16 @@ export function describeError(err: unknown): string {
   if (code.includes('unauthorized-domain')) return 'هذا النطاق غير مصرح به في إعدادات Firebase Authentication.';
   if (code.includes('operation-not-allowed')) return 'طريقة تسجيل الدخول هذه غير مفعلة في إعدادات Firebase.';
   if (code.includes('storage/')) return 'تعذر رفع الملف. تأكد من تفعيل Firebase Storage ومن حجم الملف.';
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found'))
+    return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+  if (code.includes('email-already-in-use')) return 'هذا البريد مسجّل مسبقاً. سجّل الدخول، أو استعمل «نسيت كلمة المرور».';
+  if (code.includes('weak-password')) return 'كلمة المرور ضعيفة. استعمل 8 أحرف على الأقل.';
+  if (code.includes('invalid-email')) return 'البريد الإلكتروني غير صحيح.';
+  if (code.includes('invalid-phone-number')) return 'رقم الهاتف غير صحيح. اكتبه بالصيغة الدولية، مثل ‎+49 151 2345678';
+  if (code.includes('invalid-verification-code')) return 'رمز التحقق غير صحيح.';
+  if (code.includes('code-expired')) return 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.';
+  if (code.includes('too-many-requests')) return 'محاولات كثيرة. انتظر قليلاً ثم حاول مجدداً.';
+  if (code.includes('billing-not-enabled') || code.includes('quota-exceeded'))
+    return 'الدخول بالهاتف غير متاح حالياً (يتطلب تفعيل الرسائل في Firebase).';
   return 'حدث خطأ غير متوقع. حاول مرة أخرى.';
 }

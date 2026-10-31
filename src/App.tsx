@@ -840,6 +840,7 @@ export default function App() {
         firebaseUser={firebaseUser}
         onClose={() => setIsAuthModalOpen(false)}
         onError={showError}
+        onInfo={(msg) => showToast(msg)}
         onOnboardingComplete={handleOnboardingComplete}
       />
 

@@ -147,8 +147,15 @@ export default function App() {
   }, [showToast]);
 
   useEffect(() => {
-    if (data.error) showToast('تعذر تحميل بعض البيانات. حدّث الصفحة أو تحقق من الاتصال.', 'error');
-  }, [data.error, showToast]);
+    if (!data.error) return;
+    // Admins get the exact source and Firestore error code to make problems diagnosable.
+    showToast(
+      role === 'admin'
+        ? `تعذر تحميل «${data.error.source}» (${data.error.code}). إن كان الرمز permission-denied فانشر قواعد الأمان: npm run deploy:rules`
+        : 'تعذر تحميل بعض البيانات. حدّث الصفحة أو تحقق من الاتصال.',
+      'error'
+    );
+  }, [data.error, role, showToast]);
 
   // ------------------------------------------------------------------
   // Derived data

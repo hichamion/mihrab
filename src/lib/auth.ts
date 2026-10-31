@@ -72,7 +72,10 @@ export function useAuthState(): AuthState {
   const isAdmin = !!currentUid && adminState.uid === currentUid && adminState.isAdmin;
 
   const ready = authReady && profileReady && adminReady;
-  const role: UserRole = !firebaseUser || !ready ? 'visitor' : isAdmin ? 'admin' : profile?.role ?? 'visitor';
+  // Admin rights come ONLY from admins/{uid} (same check as firestore.rules). A legacy users/{uid}.role == 'admin'
+  // from an older version is ignored, otherwise the admin panel would open without the data it needs.
+  const profileRole = profile?.role === 'imam' || profile?.role === 'mosque' ? profile.role : 'visitor';
+  const role: UserRole = !firebaseUser || !ready ? 'visitor' : isAdmin ? 'admin' : profileRole;
 
   return {
     firebaseUser,

@@ -77,6 +77,7 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
   const [riwayaFilter, setRiwayaFilter] = useState('all');
 
   // `imams` contains approved profiles only; hide paused ones.
+  const availableImamsCount = imams.filter((imam) => imam.availabilityState !== 'paused').length;
   const visibleImams = imams.filter((imam) => {
     if (imam.availabilityState === 'paused') return false;
     const q = searchTerm.trim().toLowerCase();
@@ -103,7 +104,9 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
     <section className="flex-1 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
       <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-950 text-white p-6 sm:p-7 rounded-3xl shadow-md flex flex-wrap justify-between items-center gap-4">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-black font-amiri">قائمة الأئمة المتوفرين ({visibleImams.length})</h2>
+          <h1 className="text-2xl sm:text-3xl font-black font-amiri">
+            الأئمة المتاحون{availableImamsCount > 0 ? ` (${availableImamsCount})` : ''}
+          </h1>
           <p className="text-xs sm:text-sm text-emerald-100/90">
             تصفح الأئمة والقرّاء المتاحين واستمع لتلاواتهم، أو سجّل كإمام جديد في المنصة
           </p>
@@ -120,12 +123,11 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
             </button>
           )}
 
-          <button onClick={() => setActiveTab('browse')} className={tabClass('browse')}>
-            الأئمة المتاحون ({visibleImams.length})
-          </button>
-
           {isMosque && (
             <>
+              <button onClick={() => setActiveTab('browse')} className={tabClass('browse')}>
+                الأئمة المتاحون
+              </button>
               <button onClick={() => setActiveTab('manage_mosques')} className={tabClass('manage_mosques')}>
                 إعلاناتي ({myMosques.length})
               </button>
@@ -222,7 +224,9 @@ export const MosquePortal: React.FC<MosquePortalProps> = ({
 
           {visibleImams.length === 0 && (
             <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center text-xs text-slate-500">
-              لا يوجد أئمة مطابقون للبحث حالياً.
+              {availableImamsCount === 0
+                ? 'لا توجد ملفات أئمة منشورة بعد. سجّل ملفك ليكون من أوائل الأئمة على المنصة.'
+                : 'لا يوجد أئمة مطابقون لهذا البحث. جرّب تغيير عوامل التصفية.'}
             </div>
           )}
 

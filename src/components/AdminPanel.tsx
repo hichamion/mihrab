@@ -73,9 +73,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-black font-amiri">
+              <h1 className="text-xl sm:text-2xl font-black font-amiri">
                 لوحة تحكم الإدارة
-              </h2>
+              </h1>
               <span className="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-black px-2.5 py-0.5 rounded-full">
                 صلاحيات كاملة: مراجعة • تعديل • موافقة
               </span>

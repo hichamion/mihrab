@@ -4,6 +4,7 @@ import type { MosqueEditableFields } from '../lib/db';
 import { useContact } from '../lib/db';
 import { isValidEmail, isValidPhone } from '../utils/helpers';
 import { X, Loader2 } from 'lucide-react';
+import { useDialog } from '../lib/useDialog';
 
 interface MosqueModalFormProps {
   isOpen: boolean;
@@ -81,6 +82,8 @@ export const MosqueModalForm: React.FC<MosqueModalFormProps> = ({ isOpen, onClos
     }
   }, [existingContact, isOpen, initialData]);
 
+  const dialogRef = useDialog(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const handleToggleRequirement = (req: string) => {
@@ -135,7 +138,7 @@ export const MosqueModalForm: React.FC<MosqueModalFormProps> = ({ isOpen, onClos
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" role="dialog" ref={dialogRef} tabIndex={-1} aria-modal="true">
       <div className="bg-white rounded-3xl max-w-3xl w-full p-6 md:p-8 shadow-2xl my-8 max-h-[92vh] overflow-y-auto text-xs space-y-6">
         
         {/* Modal Header */}

@@ -112,7 +112,8 @@ export interface PlatformData {
   messages: PlatformMessage[];
   reports: ReportItem[];
   loading: boolean;
-  error: string | null;
+  /** Which data failed to load and why (Firestore error code), e.g. { source: 'البلاغات', code: 'permission-denied' }. */
+  error: { source: string; code: string } | null;
 }
 
 /**
@@ -127,13 +128,17 @@ export function usePlatformData(uid: string | null, role: UserRole): PlatformDat
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [loadedImams, setLoadedImams] = useState(false);
   const [loadedMosques, setLoadedMosques] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PlatformData['error']>(null);
 
   useEffect(() => {
     const isAdmin = role === 'admin';
-    const onError = (err: Error) => {
-      console.error('[Firestore]', err);
-      setError(err.message);
+    setError(null);
+    const onError = (source: string) => (err: Error) => {
+      // A listener from the previous account (just after signing in/out) may fail before it is replaced; ignore it.
+      if ((auth.currentUser?.uid ?? null) !== uid) return;
+      const code = (err as { code?: string }).code || err.message;
+      console.error(`[Firestore] ${source}:`, err);
+      setError({ source, code });
     };
 
     // Imams
@@ -170,14 +175,14 @@ export function usePlatformData(uid: string | null, role: UserRole): PlatformDat
       subscribeMerged<ImamProfile>(imamSources, (items) => {
         setImams(items.sort(byDesc((i) => i.createdAt)));
         setLoadedImams(true);
-      }, onError),
+      }, onError('الأئمة')),
       subscribeMerged<MosqueJob>(mosqueSources, (items) => {
         setMosques(items.sort(byDesc((m) => m.createdAt)));
         setLoadedMosques(true);
-      }, onError),
-      subscribeMerged<Application>(appSources, (items) => setApplications(items.sort(byDesc((a) => a.appliedAt))), onError),
-      subscribeMerged<PlatformMessage>(msgSources, (items) => setMessages(items.sort(byDesc((m) => m.sentAt))), onError),
-      subscribeMerged<ReportItem>(reportSources, (items) => setReports(items.sort(byDesc((r) => r.reportedAt))), onError),
+      }, onError('المساجد')),
+      subscribeMerged<Application>(appSources, (items) => setApplications(items.sort(byDesc((a) => a.appliedAt))), onError('طلبات الترشح')),
+      subscribeMerged<PlatformMessage>(msgSources, (items) => setMessages(items.sort(byDesc((m) => m.sentAt))), onError('الرسائل')),
+      subscribeMerged<ReportItem>(reportSources, (items) => setReports(items.sort(byDesc((r) => r.reportedAt))), onError('البلاغات')),
     ];
     return () => unsubs.forEach((u) => u());
   }, [uid, role]);

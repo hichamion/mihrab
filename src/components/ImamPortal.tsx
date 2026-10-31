@@ -90,11 +90,11 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
     <section className="flex-1 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
       <div className="bg-gradient-to-r from-sky-600 via-sky-700 to-blue-800 text-white p-6 sm:p-7 rounded-3xl shadow-md flex flex-wrap justify-between items-center gap-4">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-black font-amiri">
-            قائمة المساجد والجمعيات المتوفرة ({activeMosques.length})
-          </h2>
+          <h1 className="text-2xl sm:text-3xl font-black font-amiri">
+            إعلانات المساجد والجمعيات{activeMosques.length > 0 ? ` (${activeMosques.length})` : ''}
+          </h1>
           <p className="text-xs sm:text-sm text-sky-100">
-            تصفح المساجد التي تبحث عن إمام وتقدم إليها، أو أدر ملفك الشخصي كإمام
+            تصفح المساجد التي تبحث عن إمام وتقدّم إليها
           </p>
         </div>
 
@@ -109,12 +109,11 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
             </button>
           )}
 
-          <button onClick={() => setActiveTab('mosque_ads')} className={tabClass('mosque_ads')}>
-            المساجد المتوفرة ({activeMosques.length})
-          </button>
-
           {isImam && (
             <>
+              <button onClick={() => setActiveTab('mosque_ads')} className={tabClass('mosque_ads')}>
+                إعلانات المساجد
+              </button>
               <button onClick={() => setActiveTab('manage')} className={tabClass('manage')}>
                 ملفي الشخصي كإمام
               </button>
@@ -290,7 +289,9 @@ export const ImamPortal: React.FC<ImamPortalProps> = ({
 
           {filteredMosques.length === 0 && (
             <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center text-xs text-slate-500">
-              لا توجد إعلانات مساجد نشطة حالياً. عُد لاحقاً.
+              {activeMosques.length === 0
+                ? 'لا توجد إعلانات مساجد منشورة بعد. إن كنت تمثّل مسجداً، انشر أول إعلان.'
+                : 'لا توجد إعلانات في هذه الدولة حالياً.'}
             </div>
           )}
 

@@ -4,6 +4,8 @@ import { X, CheckCircle2, Lock, ArrowLeft, Building2, Loader2 } from 'lucide-rea
 import { createUserProfile, nowIso } from '../lib/db';
 import { signInWith, signOutUser } from '../lib/auth';
 import { DEFAULT_IMAM_SILHOUETTE_AVATAR } from '../utils/helpers';
+import { LogoMark } from './Logo';
+import { useDialog } from '../lib/useDialog';
 
 interface AuthOnboardingModalProps {
   isOpen: boolean;
@@ -39,6 +41,8 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
       setAcceptedPrivacy(false);
     }
   }, [needsOnboarding, firebaseUser?.uid]);
+
+  const dialogRef = useDialog(isOpen, needsOnboarding ? undefined : onClose);
 
   if (!isOpen) return null;
 
@@ -95,16 +99,14 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
     <div
       className="fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
       role="dialog"
+      ref={dialogRef}
+      tabIndex={-1}
       aria-modal="true"
     >
       <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl my-6 text-xs">
         <div className="bg-slate-900 text-white p-5 sm:p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img
-              src={DEFAULT_IMAM_SILHOUETTE_AVATAR}
-              alt=""
-              className="w-11 h-11 rounded-2xl object-cover border border-amber-400/60"
-            />
+            <LogoMark className="w-11 h-11" />
             <div>
               <h3 className="text-lg sm:text-xl font-black font-amiri">
                 {step === 'login' ? 'تسجيل الدخول إلى حسابك' : 'إكمال إنشاء حسابك'}

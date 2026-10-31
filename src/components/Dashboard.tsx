@@ -23,6 +23,7 @@ import {
   Tooltip,
   CartesianGrid
 } from 'recharts';
+import { MIN_ITEMS_FOR_STATS } from '../config';
 
 interface DashboardProps {
   imams: ImamProfile[];
@@ -37,6 +38,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenImams,
   onOpenMosques,
 }) => {
+  if (imams.length + mosques.length < MIN_ITEMS_FOR_STATS) {
+    // Empty charts look broken; show an invitation until there is enough real data.
+    return (
+      <section className="flex-1 py-16 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto w-full text-center space-y-5">
+        <h1 className="text-3xl font-black text-slate-900 font-amiri">إحصائيات المنصة</h1>
+        <p className="text-slate-600 leading-relaxed">
+          المنصة في بدايتها. ستظهر هنا الإحصائيات (الروايات، الدول، التسجيلات الجديدة…) عندما يكتمل عدد كافٍ من
+          الملفات والإعلانات المعتمدة.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={onOpenImams}
+            className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-3 rounded-xl text-sm cursor-pointer"
+          >
+            تصفح الأئمة
+          </button>
+          <button
+            onClick={onOpenMosques}
+            className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 py-3 rounded-xl text-sm cursor-pointer"
+          >
+            تصفح إعلانات المساجد
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   // All figures are computed from real, approved data — nothing is invented.
   const activeMosquesCount = mosques.filter((m) => m.activeState !== 'closed').length;
   const availableImamsCount = imams.filter((i) => i.availabilityState !== 'paused').length;
@@ -104,9 +132,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>إحصائيات محراب (بيانات حقيقية ومحدّثة)</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black font-amiri tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black font-amiri tracking-tight">
             المؤشرات العامة للتوظيف الشرعي والربط بين الأئمة والمساجد
-          </h2>
+          </h1>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             أرقام محسوبة مباشرة من الملفات والإعلانات المعتمدة في المنصة.
           </p>
@@ -233,7 +261,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="h-72 w-full pt-2">
+          <div className="h-72 w-full pt-2" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyTrendsData}>
                 <defs>
@@ -247,8 +275,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} />
-                <YAxis stroke="#94a3b8" fontSize={11} allowDecimals={false} />
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} reversed />
+                <YAxis stroke="#94a3b8" fontSize={12} allowDecimals={false} orientation="right" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                 />
@@ -286,7 +314,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          <div className="h-56 w-full">
+          <div className="h-56 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -336,12 +364,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          <div className="h-64 w-full pt-2">
+          <div className="h-64 w-full pt-2" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={countryData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="country" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} />
+                <XAxis dataKey="country" stroke="#64748b" fontSize={12} reversed />
+                <YAxis stroke="#64748b" fontSize={12} allowDecimals={false} orientation="right" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', color: '#fff', fontSize: '11px' }}
                 />
@@ -362,16 +390,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          <div className="h-64 w-full pt-2">
+          <div className="h-64 w-full pt-2" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart layout="vertical" data={qualificationData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis type="number" stroke="#64748b" fontSize={11} allowDecimals={false} />
-                <YAxis dataKey="name" type="category" width={140} stroke="#64748b" fontSize={10} />
+                <XAxis type="number" stroke="#64748b" fontSize={12} allowDecimals={false} reversed />
+                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" fontSize={12} orientation="right" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', color: '#fff', fontSize: '11px' }}
                 />
-                <Bar dataKey="count" name="عدد الأئمة" radius={[0, 8, 8, 0]}>
+                <Bar dataKey="count" name="عدد الأئمة" radius={[8, 0, 0, 8]}>
                   {qualificationData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}

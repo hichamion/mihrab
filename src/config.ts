@@ -34,3 +34,15 @@ export const SUPPORT = {
 };
 
 export const SUPPORT_ENABLED = Boolean(SUPPORT.paypalUrl || SUPPORT.bank.iban);
+
+/**
+ * Sign-in methods shown in the login window. Each one must ALSO be enabled in
+ * Firebase Console → Authentication → Sign-in method, otherwise sign-in fails.
+ * Phone (SMS) requires the Blaze (pay-as-you-go) plan and costs per SMS.
+ */
+export const AUTH_METHODS = {
+  google: true,
+  facebook: true,
+  email: true,
+  phone: false,
+};

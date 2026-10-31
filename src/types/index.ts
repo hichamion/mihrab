@@ -21,7 +21,7 @@ export interface UserProfile {
   email: string;
   displayName: string;
   photoURL?: string;
-  provider: 'google' | 'facebook';
+  provider: 'google' | 'facebook' | 'password' | 'phone';
   role: AccountRole;
   /** Set to true by an admin when one of the user's mosques is approved. Only admins can change it. */
   verified?: boolean;

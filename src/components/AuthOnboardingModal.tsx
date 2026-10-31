@@ -6,6 +6,8 @@ import { signInWith, signOutUser } from '../lib/auth';
 import { DEFAULT_IMAM_SILHOUETTE_AVATAR } from '../utils/helpers';
 import { LogoMark } from './Logo';
 import { useDialog } from '../lib/useDialog';
+import { EmailPhoneAuth } from './EmailPhoneAuth';
+import { AUTH_METHODS } from '../config';
 
 interface AuthOnboardingModalProps {
   isOpen: boolean;
@@ -14,11 +16,12 @@ interface AuthOnboardingModalProps {
   firebaseUser: User | null;
   onClose: () => void;
   onError: (err: unknown) => void;
+  onInfo: (msg: string) => void;
   onOnboardingComplete: (role: 'imam' | 'mosque') => void;
 }
 
 /**
- * Step 1: sign in with Google or Facebook (real Firebase Auth, no fallback).
+ * Step 1: sign in with Google, Facebook, e-mail or phone (whichever AUTH_METHODS enables).
  * Step 2 (first sign-in only): choose the account type and accept the privacy policy.
  * The admin role cannot be chosen here — it is granted in the Firebase console (see README).
  */
@@ -28,6 +31,7 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
   firebaseUser,
   onClose,
   onError,
+  onInfo,
   onOnboardingComplete,
 }) => {
   const [loading, setLoading] = useState(false);
@@ -80,7 +84,13 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
         email: firebaseUser.email || '',
         displayName: name.slice(0, 120),
         ...(firebaseUser.photoURL ? { photoURL: firebaseUser.photoURL } : {}),
-        provider: providerId.includes('facebook') ? 'facebook' : 'google',
+        provider: providerId.includes('facebook')
+          ? 'facebook'
+          : providerId === 'password'
+          ? 'password'
+          : providerId === 'phone'
+          ? 'phone'
+          : 'google',
         role: selectedRole,
         verified: false,
         createdAt: nowIso(),
@@ -132,12 +142,12 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                   <span>تسجيل الدخول الآمن</span>
                 </p>
                 <p className="text-xs text-slate-600">
-                  سجّل الدخول بحساب جوجل أو فيسبوك. لا نحصل على كلمة مرورك، ونستخدم اسمك وبريدك فقط لإنشاء حسابك في
-                  المنصة.
+                  نستخدم اسمك ووسيلة الدخول فقط لإنشاء حسابك في المنصة، ولا نشاركها مع أحد.
                 </p>
               </div>
 
               <div className="space-y-3">
+                {AUTH_METHODS.google && (
                 <button
                   type="button"
                   disabled={loading}
@@ -156,7 +166,9 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                   )}
                   <span>المتابعة باستخدام حساب جوجل (Google)</span>
                 </button>
+                )}
 
+                {AUTH_METHODS.facebook && (
                 <button
                   type="button"
                   disabled={loading}
@@ -168,7 +180,16 @@ export const AuthOnboardingModal: React.FC<AuthOnboardingModalProps> = ({
                   </svg>
                   <span>المتابعة باستخدام فيسبوك (Facebook)</span>
                 </button>
+                )}
               </div>
+
+              <EmailPhoneAuth
+                showEmail={AUTH_METHODS.email}
+                showPhone={AUTH_METHODS.phone}
+                onSignedIn={onClose}
+                onError={onError}
+                onInfo={onInfo}
+              />
             </div>
           ) : (
             <form onSubmit={handleFinishOnboarding} className="space-y-5">

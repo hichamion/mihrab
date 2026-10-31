@@ -12,8 +12,8 @@ export const MIN_ITEMS_FOR_STATS = 5;
  * Use only photos you have the right to use (your own, or free licences such as Unsplash / Pexels).
  */
 export const HERO_PHOTOS = {
-  imams: '', // e.g. 'hero-imams.jpg' — a worshipper raising hands in du'a
-  mosques: '', // e.g. 'hero-mosques.jpg' — a decorated mihrab
+  imams: 'hero-imams.jpg', // a worshipper raising hands in du'a
+  mosques: 'hero-mosques.jpg', // a decorated mihrab
 };
 
 /**

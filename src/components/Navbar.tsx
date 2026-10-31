@@ -97,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const showMosqueIcon = currentRole === 'mosque' && !userPhoto;
 
   return (
-    <header className="bg-white text-slate-900 border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <header className="bg-night/95 backdrop-blur text-white border-b border-white/10 sticky top-0 z-40 shadow-lg shadow-black/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18 gap-6">
           
@@ -107,19 +107,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2.5 text-right cursor-pointer whitespace-nowrap shrink-0 focus:outline-none"
           >
             <LogoMark className="w-10 h-10 shadow-xs rounded-xl" />
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-emerald-950 font-amiri">
+            <span className="text-xl sm:text-2xl font-black tracking-tight text-white font-amiri">
               مِحراب
             </span>
           </button>
 
           {/* Zone 2: Clean Single-Line Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-slate-600">
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-slate-300">
             <button
               onClick={() => setCurrentView('home')}
               className={`py-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 border-b-2 ${
                 currentView === 'home'
-                  ? 'border-emerald-700 text-emerald-900 font-black'
-                  : 'border-transparent hover:text-slate-950'
+                  ? 'border-amber-400 text-white font-black'
+                  : 'border-transparent hover:text-white'
               }`}
             >
               الرئيسية
@@ -129,8 +129,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setCurrentView('mosque')}
               className={`py-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 border-b-2 ${
                 currentView === 'mosque'
-                  ? 'border-emerald-700 text-emerald-900 font-black'
-                  : 'border-transparent hover:text-slate-950'
+                  ? 'border-amber-400 text-white font-black'
+                  : 'border-transparent hover:text-white'
               }`}
             >
               الأئمة المتاحون
@@ -140,8 +140,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setCurrentView('imam')}
               className={`py-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 border-b-2 ${
                 currentView === 'imam'
-                  ? 'border-sky-600 text-sky-900 font-black'
-                  : 'border-transparent hover:text-slate-950'
+                  ? 'border-amber-400 text-white font-black'
+                  : 'border-transparent hover:text-white'
               }`}
             >
               إعلانات المساجد
@@ -152,8 +152,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setCurrentView('dashboard')}
               className={`py-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 border-b-2 ${
                 currentView === 'dashboard'
-                  ? 'border-emerald-700 text-emerald-900 font-black'
-                  : 'border-transparent hover:text-slate-950'
+                  ? 'border-amber-400 text-white font-black'
+                  : 'border-transparent hover:text-white'
               }`}
             >
               الإحصائيات
@@ -165,8 +165,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setCurrentView('admin')}
                 className={`py-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 border-b-2 flex items-center gap-1.5 ${
                   currentView === 'admin'
-                    ? 'border-amber-500 text-amber-900 font-black'
-                    : 'border-transparent text-amber-700 hover:text-amber-900'
+                    ? 'border-amber-400 text-amber-300 font-black'
+                    : 'border-transparent text-amber-400 hover:text-amber-300'
                 }`}
               >
                 <span>لوحة الإدارة</span>
@@ -187,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Account Pill Button (Avatar + Name + Role like Google/Facebook) */}
                 <button
                   onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                  className="flex items-center gap-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/90 rounded-full py-1.5 pl-3 pr-1.5 transition cursor-pointer focus:outline-none"
+                  className="flex items-center gap-2.5 bg-white/5 hover:bg-white/10 border border-white/15 rounded-full py-1.5 pl-3 pr-1.5 transition cursor-pointer focus:outline-none"
                 >
                   <div className="relative">
                     {showMosqueIcon ? (
@@ -210,15 +210,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
 
                   <div className="text-right hidden md:block max-w-[150px]">
-                    <p className="text-xs font-black text-slate-900 truncate leading-tight">
+                    <p className="text-xs font-black text-white truncate leading-tight">
                       {displayUserName}
                     </p>
-                    <p className="text-xs font-bold text-emerald-700 truncate">
+                    <p className="text-xs font-bold text-amber-300 truncate">
                       {roleBadgeText}
                     </p>
                   </div>
 
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
+                  <ChevronDown className="w-4 h-4 text-slate-300" />
                 </button>
 
                 {/* Google / Gemini / Facebook Style Profile Popover Menu */}
@@ -355,7 +355,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={onOpenAuthModal}
-                className="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+                className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-4 py-2.5 rounded-full shadow-xs transition flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <LogIn className="w-4 h-4" />
                 <span>تسجيل الدخول</span>
@@ -365,7 +365,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 focus:outline-none cursor-pointer"
+              className="lg:hidden p-2 rounded-xl text-white hover:bg-white/10 focus:outline-none cursor-pointer"
               aria-label="القائمة"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

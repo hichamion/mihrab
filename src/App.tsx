@@ -50,6 +50,7 @@ import { InterviewModal, InterviewDetails } from './components/InterviewModal';
 import { ReportModal } from './components/ReportModal';
 import { PrivacyPage } from './components/PrivacyPage';
 import { Footer } from './components/Footer';
+import { MobileNav } from './components/MobileNav';
 import { MIN_ITEMS_FOR_STATS, SUPPORT_ENABLED } from './config';
 import { ContactPage } from './components/ContactPage';
 import { SupportPage } from './components/SupportPage';
@@ -830,6 +831,17 @@ export default function App() {
         onOpenHowItWorks={goHowItWorks}
         onOpenContact={() => setCurrentView('contact')}
         onOpenSupport={SUPPORT_ENABLED ? () => setCurrentView('support') : undefined}
+      />
+
+      <MobileNav
+        currentView={currentView}
+        role={role}
+        unreadCount={totalUnreadMessages}
+        onHome={() => setCurrentView('home')}
+        onImams={goImamsList}
+        onMosques={goMosquesList}
+        onAccount={handleOpenMyProfile}
+        onSignIn={() => setIsAuthModalOpen(true)}
       />
 
       {/* ------------------------------ Modals ------------------------------ */}

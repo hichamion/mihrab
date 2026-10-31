@@ -59,6 +59,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onOpenMosqueAdd,
   inbox,
 }) => {
+  // Opens the inbox compose window for one imam / mosque ("مراسلة" buttons).
+  const [composeRequest, setComposeRequest] = useState<{ type: 'imam' | 'mosque'; id: string; seq: number } | null>(null);
+  const messageTo = (type: 'imam' | 'mosque', id: string) => {
+    setComposeRequest((prev) => ({ type, id, seq: (prev?.seq ?? 0) + 1 }));
+    setActiveTab('inbox');
+  };
   const [activeTab, setActiveTab] = useState<'pending' | 'all_imams' | 'all_mosques' | 'reports' | 'feedback' | 'inbox'>('pending');
   const unreadAdmin = inbox.messages.filter(
     (m) => !m.isRead && (m.receiverUid === 'admin' || m.receiverUid === inbox.currentUid)
@@ -300,6 +306,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             <span>معاينة</span>
                           </button>
                           <button
+                            onClick={() => messageTo('imam', imam.id)}
+                            className="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span>مراسلة</span>
+                          </button>
+                          <button
                             onClick={() => onEditImam(imam)}
                             className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
                           >
@@ -367,6 +380,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </div>
 
                         <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-sky-200/70">
+                          <button
+                            onClick={() => messageTo('mosque', m.id)}
+                            className="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span>مراسلة</span>
+                          </button>
                           <button
                             onClick={() => onEditMosque(m)}
                             className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
@@ -475,6 +495,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     عرض الملف
                   </button>
                   <button
+                            onClick={() => messageTo('imam', imam.id)}
+                            className="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span>مراسلة</span>
+                          </button>
+                          <button
                     onClick={() => onEditImam(imam)}
                     className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
@@ -553,6 +580,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     </button>
                   )}
                   <button
+                            onClick={() => messageTo('mosque', m.id)}
+                            className="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-black px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span>مراسلة</span>
+                          </button>
+                          <button
                     onClick={() => onEditMosque(m)}
                     className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs cursor-pointer"
                   >
@@ -682,7 +716,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       )}
 
       {/* TAB 5: ADMIN INBOX */}
-      {activeTab === 'inbox' && <InboxCenter currentRole="admin" {...inbox} />}
+      {activeTab === 'inbox' && <InboxCenter currentRole="admin" {...inbox} composeRequest={composeRequest} onComposeOpened={() => setComposeRequest(null)} />}
     </section>
   );
 };

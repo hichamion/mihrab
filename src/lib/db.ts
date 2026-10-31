@@ -418,6 +418,7 @@ export type MosqueEditableFields = Pick<
   | 'details'
   | 'salaryAndBenefits'
   | 'housingProvided'
+  | 'photo'
 >;
 
 export async function saveMosque(params: {

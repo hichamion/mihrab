@@ -85,12 +85,14 @@ export interface MosqueJob {
   details: string;
   salaryAndBenefits: string;
   housingProvided: boolean;
+  /** Small compressed JPEG as a data URL (profile picture of the mosque), or '' for the default image. */
+  photo?: string;
   approvalStatus: ApprovalStatus;
   createdAt: string;
   updatedAt?: string;
 }
 
-/** Firestore: mosqueContacts/{mosqueId} — readable by signed-in imams/mosques, the owner and admins. */
+/** Firestore: mosqueContacts/{mosqueId} — readable by the owner, admins and imams with an approved profile. */
 export interface MosqueContact {
   ownerUid: string;
   contactPerson: string;

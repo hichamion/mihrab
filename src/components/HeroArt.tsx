@@ -138,3 +138,54 @@ export const MihrabArt: React.FC<{ className?: string }> = ({ className = '' }) 
     </svg>
   );
 };
+
+/** Hanging lantern (fanous), drawn in gold. `x` is its centre, `len` the chain length. */
+const Lantern: React.FC<{ x: number; len: number; scale?: number }> = ({ x, len, scale = 1 }) => (
+  <g transform={`translate(${x} 0) scale(${scale})`}>
+    <line x1="0" y1="0" x2="0" y2={len} stroke="url(#gold)" strokeWidth="1.5" />
+    <g transform={`translate(0 ${len})`}>
+      <path d="M-6 0 H6 L10 10 H-10 Z" fill="url(#gold)" />
+      <path d="M-14 10 H14 L18 22 H-18 Z" fill="url(#gold)" />
+      <rect x="-14" y="22" width="28" height="44" rx="4" fill="#fcd27f" fillOpacity="0.18" stroke="url(#gold)" strokeWidth="2" />
+      <ellipse cx="0" cy="46" rx="7" ry="12" fill="#ffe7a8" opacity="0.9" />
+      <ellipse cx="0" cy="46" rx="16" ry="24" fill="#ffd36b" opacity="0.18" />
+      <path d="M-7 22 V66 M7 22 V66" stroke="url(#gold)" strokeWidth="1" opacity="0.7" />
+      <path d="M-18 66 H18 L12 78 H-12 Z" fill="url(#gold)" />
+      <path d="M-4 78 H4 L0 88 Z" fill="url(#gold)" />
+    </g>
+  </g>
+);
+
+/** Golden crescent with a geometric star pattern and hanging lanterns, for the dark home hero. */
+export const NightDecor: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 260 230" className={`pointer-events-none select-none ${className}`} aria-hidden>
+    <defs>
+      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#fde7a9" />
+        <stop offset="55%" stopColor="#e6b25a" />
+        <stop offset="100%" stopColor="#a8742c" />
+      </linearGradient>
+      <pattern id="crescent-stars" width="14" height="14" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="#f3cf85" strokeWidth="0.7" opacity="0.9">
+          <rect x="3" y="3" width="8" height="8" />
+          <rect x="3" y="3" width="8" height="8" transform="rotate(45 7 7)" />
+        </g>
+      </pattern>
+      <mask id="crescent-mask">
+        <circle cx="80" cy="120" r="70" fill="#fff" />
+        <circle cx="112" cy="98" r="62" fill="#000" />
+      </mask>
+    </defs>
+    <g mask="url(#crescent-mask)">
+      <circle cx="80" cy="120" r="70" fill="#1c3550" />
+      <circle cx="80" cy="120" r="70" fill="url(#crescent-stars)" />
+    </g>
+    {/* Gold rim of the crescent */}
+    <g mask="url(#crescent-mask)">
+      <circle cx="80" cy="120" r="68.5" fill="none" stroke="url(#gold)" strokeWidth="3" />
+    </g>
+    <circle cx="112" cy="98" r="62" fill="none" stroke="url(#gold)" strokeWidth="2.5" mask="url(#crescent-mask)" />
+    <Lantern x={168} len={40} />
+    <Lantern x={222} len={78} scale={0.85} />
+  </svg>
+);

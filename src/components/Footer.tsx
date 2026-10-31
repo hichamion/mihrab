@@ -30,7 +30,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenPrivacy,
 }) => {
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-emerald-900/60 pt-12 pb-8 px-4 sm:px-6 lg:px-8 text-sm">
+    <footer className="bg-night text-slate-400 border-t border-emerald-900/60 pt-12 pb-28 lg:pb-8 px-4 sm:px-6 lg:px-8 text-sm">
       <div className="max-w-7xl mx-auto space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImamProfile, UserRole } from '../types';
+import { ImamContact, ImamProfile, UserRole } from '../types';
 import { getYoutubeEmbedUrl, getRiwayaBadgeStyle, getSafeImamAvatar, safeHttpUrl } from '../utils/helpers';
 import { ContactBlock } from './ContactBlock';
 import {
@@ -17,6 +17,8 @@ import {
   Lock,
 } from 'lucide-react';
 import { useDialog } from '../lib/useDialog';
+import { useContact } from '../lib/db';
+import { openImamCv } from '../lib/cv';
 
 interface ImamFullModalProps {
   imam: ImamProfile | null;
@@ -47,6 +49,8 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
   onCopied,
 }) => {
   const dialogRef = useDialog(!!imam, onClose);
+  // Contact details go into the CV only for viewers allowed to see them (cached, shared with ContactBlock).
+  const { contact } = useContact<ImamContact>('imam', imam?.id, !!imam && canViewContact);
 
   if (!imam) return null;
 
@@ -339,7 +343,15 @@ export const ImamFullModal: React.FC<ImamFullModalProps> = ({
 
         {/* Modal Bottom Action Bar */}
         <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-wrap justify-between items-center gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => openImamCv(imam, canViewContact ? contact : null)}
+              className="text-emerald-800 hover:text-emerald-950 font-extrabold flex items-center gap-1 cursor-pointer text-xs border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg transition"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>تحميل السيرة الذاتية (PDF)</span>
+            </button>
+
             {canEdit && (
               <button
                 onClick={() => {

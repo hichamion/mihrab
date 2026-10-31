@@ -251,6 +251,21 @@ service cloud.firestore {
         && str(incoming().targetName, 200);
     }
 
+    // ---------- feedback ("contact the admin" / suggestions) ----------
+    // Anyone, even without an account, may send one; only admins read, mark or delete them.
+    match /feedback/{feedbackId} {
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin() && changedKeys().hasOnly(['status']) && incoming().status in ['new', 'handled'];
+      allow create: if incoming().keys().hasOnly(['kind', 'name', 'email', 'message', 'senderUid', 'createdAt', 'status'])
+        && incoming().kind in ['message', 'suggestion', 'problem']
+        && str(incoming().name, 120)
+        && str(incoming().email, 200)
+        && nonEmpty(incoming().message, 3000) && incoming().message.size() >= 10
+        && str(incoming().createdAt, 40)
+        && incoming().status == 'new'
+        && (!incoming().keys().hasAny(['senderUid']) || (signedIn() && incoming().senderUid == me()));
+    }
+
     // Everything else is closed.
     match /{document=**} {
       allow read, write: if false;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { UserRole } from '../types';
-import { DEFAULT_IMAM_SILHOUETTE_AVATAR } from '../utils/helpers';
+import { DuaArt, MihrabArt } from './HeroArt';
+import { HERO_PHOTOS } from '../config';
 import { 
-  Building2, 
   ArrowLeft, 
   BarChart3,
   Plus,
@@ -24,6 +24,7 @@ interface HeroSectionProps {
   pendingCount: number;
   /** Hide the statistics button until there is enough data. */
   showStats: boolean;
+  onOpenContact: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
@@ -39,6 +40,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   mosquesCount,
   pendingCount,
   showStats,
+  onOpenContact,
 }) => {
   return (
     <section className="relative overflow-hidden bg-slate-50 text-slate-900 py-10 sm:py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200/80">
@@ -54,8 +56,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             منصة للربط بين الأئمة والقرّاء والمساجد في أوروبا
           </p>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-tight font-amiri">
-            منصة <span className="text-emerald-700">مِحراب</span> للأئمة والمساجد
+          <h1 className="text-4xl sm:text-6xl text-slate-900 font-maghribi">
+            منصة <span className="text-emerald-700">محراب</span> للأئمة والمساجد
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
@@ -67,21 +69,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto items-stretch">
 
           {/* GREEN BOX: Available Imams List */}
-          <div className="bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-900 text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 border border-emerald-600/40">
+          <div
+            {...cardLink(onOpenImamList)}
+            className="relative overflow-hidden isolate bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-900 text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 border border-emerald-600/40 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
+          >
+            <CardBackground photo={HERO_PHOTOS.imams} art={<DuaArt />} tint="from-emerald-900/60 via-emerald-800/10 to-emerald-950/85" />
             <div className="space-y-5 text-center sm:text-right">
-              <div className="flex items-center justify-between">
-                <img
-                  src={DEFAULT_IMAM_SILHOUETTE_AVATAR}
-                  alt="صورة إمام بقبعة"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-300/80 shadow-md"
-                />
+              <div className="flex items-center justify-end">
                 <span className="text-emerald-100 text-sm font-bold tabular-nums">
                   {imamsCount > 0 ? `${imamsCount} إمام متاح حالياً` : 'كن أول إمام يسجّل في محراب'}
                 </span>
               </div>
 
               <div className="space-y-2 pt-2">
-                <h2 className="text-2xl sm:text-4xl font-black text-white font-amiri leading-snug">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-maghribi drop-shadow">
                   قائمة الأئمة المتوفرين
                 </h2>
                 <p className="text-sm text-emerald-100/90 leading-relaxed">
@@ -92,7 +93,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             <div className="space-y-3 pt-8 mt-6 border-t border-emerald-600/50">
               <button
-                onClick={onOpenImamList}
+                onClick={stop(onOpenImamList)}
                 className="w-full bg-white hover:bg-emerald-50 text-emerald-950 font-black py-4 px-6 rounded-2xl text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
               >
                 <span>عرض قائمة الأئمة المتوفرين</span>
@@ -100,7 +101,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </button>
 
               <button
-                onClick={onOpenImamAddModal}
+                onClick={stop(onOpenImamAddModal)}
                 className="w-full bg-emerald-950/60 hover:bg-emerald-950 text-emerald-100 font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm border border-emerald-500/40 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
@@ -110,20 +111,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* LIGHT BLUE GRADIENT BOX: Available Mosques & Associations List */}
-          <div className="bg-gradient-to-br from-sky-500 via-sky-600 to-blue-700 text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 border border-sky-400/40">
+          <div
+            {...cardLink(onOpenMosqueList)}
+            className="relative overflow-hidden isolate bg-gradient-to-br from-sky-500 via-sky-600 to-blue-700 text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1 border border-sky-400/40 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
+          >
+            <CardBackground photo={HERO_PHOTOS.mosques} art={<MihrabArt />} tint="from-sky-700/60 via-sky-600/10 to-blue-900/85" />
             <div className="space-y-5 text-center sm:text-right">
-              <div className="flex items-center justify-between">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 backdrop-blur-sm border-2 border-sky-200/70 flex items-center justify-center shadow-md">
-                  <Building2 className="w-9 h-9 sm:w-10 sm:h-10 text-white" />
-                </div>
+              <div className="flex items-center justify-end">
                 <span className="text-sky-100 text-sm font-bold tabular-nums">
                   {mosquesCount > 0 ? `${mosquesCount} مسجد يبحث عن إمام` : 'انشر أول إعلان على محراب'}
                 </span>
               </div>
 
               <div className="space-y-2 pt-2">
-                <h2 className="text-2xl sm:text-4xl font-black text-white font-amiri leading-snug">
-                  قائمة المساجد والجمعيات المتوفرة
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-maghribi drop-shadow">
+                  قائمة المساجد والجمعيات
                 </h2>
                 <p className="text-sm text-sky-100/95 leading-relaxed">
                   المساجد والجمعيات التي تبحث عن إمام وشروطها، أو انشر إعلان مسجدك.
@@ -133,7 +135,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             <div className="space-y-3 pt-8 mt-6 border-t border-sky-400/40">
               <button
-                onClick={onOpenMosqueList}
+                onClick={stop(onOpenMosqueList)}
                 className="w-full bg-white hover:bg-sky-50 text-sky-950 font-black py-4 px-6 rounded-2xl text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
               >
                 <span>عرض قائمة المساجد المتوفرة</span>
@@ -141,7 +143,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </button>
 
               <button
-                onClick={onOpenMosqueAddModal}
+                onClick={stop(onOpenMosqueAddModal)}
                 className="w-full bg-sky-950/50 hover:bg-sky-950/80 text-white font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm border border-sky-300/40 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
@@ -187,10 +189,47 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
       </div>
 
-      <HowItWorks />
+      <HowItWorks onOpenContact={onOpenContact} />
     </section>
   );
 };
+
+/** Makes a whole card act like a link (click, Enter or Space), while inner buttons keep their own action. */
+const cardLink = (onOpen: () => void) => ({
+  role: 'link',
+  tabIndex: 0,
+  onClick: onOpen,
+  onKeyDown: (e: React.KeyboardEvent) => {
+    if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onOpen();
+    }
+  },
+});
+
+const stop = (fn: () => void) => (e: React.MouseEvent) => {
+  e.stopPropagation();
+  fn();
+};
+
+/**
+ * Card background: a real photo if one is configured (HERO_PHOTOS), otherwise the drawn illustration.
+ * Either way it is blended into the card colour and covered by a tint so it never dominates the text.
+ */
+const CardBackground: React.FC<{ photo: string; art: React.ReactNode; tint: string }> = ({ photo, art, tint }) => (
+  <div className="absolute inset-0 -z-10" aria-hidden>
+    {photo ? (
+      <img
+        src={`${import.meta.env.BASE_URL}${photo}`}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity"
+      />
+    ) : (
+      <div className="absolute inset-0 opacity-45 mix-blend-soft-light">{art}</div>
+    )}
+    <div className={`absolute inset-0 bg-gradient-to-b ${tint}`} />
+  </div>
+);
 
 const STEPS = [
   {
@@ -230,7 +269,7 @@ const FAQ = [
   },
 ];
 
-const HowItWorks: React.FC = () => (
+const HowItWorks: React.FC<{ onOpenContact: () => void }> = ({ onOpenContact }) => (
   <div id="how-it-works" className="relative z-10 max-w-5xl mx-auto mt-16 space-y-12 scroll-mt-24">
     <div className="space-y-6">
       <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-amiri text-center">كيف تعمل المنصة؟</h2>
@@ -260,6 +299,12 @@ const HowItWorks: React.FC = () => (
           </details>
         ))}
       </div>
+      <p className="text-center text-sm text-slate-600 pt-2">
+        لم تجد جواب سؤالك؟{' '}
+        <button onClick={onOpenContact} className="text-emerald-800 font-bold underline cursor-pointer">
+          راسل الإدارة أو أرسل اقتراحاً
+        </button>
+      </p>
     </div>
   </div>
 );

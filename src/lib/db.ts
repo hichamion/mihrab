@@ -23,6 +23,7 @@ import {
   Application,
   ApplicationStatus,
   AvailabilityState,
+  FeedbackItem,
   ImamContact,
   ImamFormFiles,
   ImamProfile,
@@ -111,6 +112,7 @@ export interface PlatformData {
   applications: Application[];
   messages: PlatformMessage[];
   reports: ReportItem[];
+  feedback: FeedbackItem[];
   loading: boolean;
   /** Which data failed to load and why (Firestore error code), e.g. { source: 'البلاغات', code: 'permission-denied' }. */
   error: { source: string; code: string } | null;
@@ -126,6 +128,7 @@ export function usePlatformData(uid: string | null, role: UserRole): PlatformDat
   const [applications, setApplications] = useState<Application[]>([]);
   const [messages, setMessages] = useState<PlatformMessage[]>([]);
   const [reports, setReports] = useState<ReportItem[]>([]);
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [loadedImams, setLoadedImams] = useState(false);
   const [loadedMosques, setLoadedMosques] = useState(false);
   const [error, setError] = useState<PlatformData['error']>(null);
@@ -170,6 +173,7 @@ export function usePlatformData(uid: string | null, role: UserRole): PlatformDat
 
     // Reports (admin only)
     const reportSources: Source[] = isAdmin ? [collection(db, 'reports')] : [];
+    const feedbackSources: Source[] = isAdmin ? [collection(db, 'feedback')] : [];
 
     const unsubs = [
       subscribeMerged<ImamProfile>(imamSources, (items) => {
@@ -183,6 +187,7 @@ export function usePlatformData(uid: string | null, role: UserRole): PlatformDat
       subscribeMerged<Application>(appSources, (items) => setApplications(items.sort(byDesc((a) => a.appliedAt))), onError('طلبات الترشح')),
       subscribeMerged<PlatformMessage>(msgSources, (items) => setMessages(items.sort(byDesc((m) => m.sentAt))), onError('الرسائل')),
       subscribeMerged<ReportItem>(reportSources, (items) => setReports(items.sort(byDesc((r) => r.reportedAt))), onError('البلاغات')),
+      subscribeMerged<FeedbackItem>(feedbackSources, (items) => setFeedback(items.sort(byDesc((f) => f.createdAt))), onError('رسائل الزوار')),
     ];
     return () => unsubs.forEach((u) => u());
   }, [uid, role]);
@@ -193,6 +198,7 @@ export function usePlatformData(uid: string | null, role: UserRole): PlatformDat
     applications,
     messages,
     reports,
+    feedback,
     loading: !(loadedImams && loadedMosques),
     error,
   };
@@ -554,6 +560,31 @@ export async function createReport(report: Omit<ReportItem, 'id' | 'reportedAt' 
 
 export async function resolveReport(id: string) {
   await updateDoc(doc(db, 'reports', id), { status: 'reviewed' });
+}
+
+// ---------------------------------------------------------------------------
+// Feedback ("contact the admin" / suggestions) — anyone may send, only admins read
+// ---------------------------------------------------------------------------
+
+export async function sendFeedback(item: Pick<FeedbackItem, 'kind' | 'name' | 'email' | 'message'>) {
+  const uid = auth.currentUser?.uid;
+  await addDoc(collection(db, 'feedback'), {
+    kind: item.kind,
+    name: item.name.trim().slice(0, 120),
+    email: item.email.trim().slice(0, 200),
+    message: item.message.trim().slice(0, 3000),
+    ...(uid ? { senderUid: uid } : {}),
+    createdAt: nowIso(),
+    status: 'new',
+  });
+}
+
+export async function setFeedbackHandled(id: string) {
+  await updateDoc(doc(db, 'feedback', id), { status: 'handled' });
+}
+
+export async function deleteFeedback(id: string) {
+  await deleteDoc(doc(db, 'feedback', id));
 }
 
 // ---------------------------------------------------------------------------

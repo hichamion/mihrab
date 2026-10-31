@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ImamProfile, MosqueJob, ReportItem } from '../types';
+import { FeedbackItem, ImamProfile, MosqueJob, ReportItem } from '../types';
 import { formatDate, getSafeImamAvatar } from '../utils/helpers';
 import { ContactBlock } from './ContactBlock';
 import { InboxCenter, InboxProps } from './InboxCenter';
@@ -14,7 +14,8 @@ import {
   Mic,
   Clock,
   Mail,
-  Plus
+  Plus,
+  MessageSquare,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -30,6 +31,9 @@ interface AdminPanelProps {
   onDeleteMosque: (mosque: MosqueJob) => void;
   onToggleMosqueActive: (mosque: MosqueJob) => void;
   onResolveReport: (reportId: string) => void;
+  feedback: FeedbackItem[];
+  onFeedbackHandled: (id: string) => void;
+  onDeleteFeedback: (id: string) => void;
   onOpenImamAdd: () => void;
   onOpenMosqueAdd: () => void;
   inbox: InboxProps;
@@ -48,11 +52,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onDeleteMosque,
   onToggleMosqueActive,
   onResolveReport,
+  feedback,
+  onFeedbackHandled,
+  onDeleteFeedback,
   onOpenImamAdd,
   onOpenMosqueAdd,
   inbox,
 }) => {
-  const [activeTab, setActiveTab] = useState<'pending' | 'all_imams' | 'all_mosques' | 'reports' | 'inbox'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'all_imams' | 'all_mosques' | 'reports' | 'feedback' | 'inbox'>('pending');
   const unreadAdmin = inbox.messages.filter(
     (m) => !m.isRead && (m.receiverUid === 'admin' || m.receiverUid === inbox.currentUid)
   ).length;
@@ -60,6 +67,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const pendingImams = imams.filter((i) => i.approvalStatus === 'pending');
   const pendingMosques = mosques.filter((m) => m.approvalStatus === 'pending');
   const pendingReports = reports.filter((r) => r.status === 'pending');
+  const newFeedback = feedback.filter((f) => f.status === 'new');
   const totalPendingCount = pendingImams.length + pendingMosques.length;
 
   return (
@@ -195,6 +203,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         >
           <Flag className="w-4 h-4" />
           <span>مراجعة البلاغات ({pendingReports.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('feedback')}
+          className={`px-4 py-2.5 rounded-xl font-black transition cursor-pointer flex items-center gap-2 ${
+            activeTab === 'feedback'
+              ? 'bg-sky-700 text-white shadow-md'
+              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>رسائل الزوار والاقتراحات</span>
+          {newFeedback.length > 0 && (
+            <span className="bg-red-500 text-white text-xs px-1.5 rounded-full font-black">{newFeedback.length}</span>
+          )}
         </button>
 
         <button
@@ -593,6 +616,63 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         تمت المعالجة ✓
                       </span>
                     )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: VISITOR MESSAGES & SUGGESTIONS */}
+      {activeTab === 'feedback' && (
+        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+          <h3 className="font-black text-base text-slate-900 border-b pb-3">
+            رسائل الزوار والاقتراحات ({feedback.length})
+          </h3>
+          {feedback.length === 0 ? (
+            <p className="text-sm text-slate-400 py-8 text-center">لا توجد رسائل بعد.</p>
+          ) : (
+            <div className="space-y-3">
+              {feedback.map((f) => (
+                <div
+                  key={f.id}
+                  className={`p-4 rounded-2xl border text-sm space-y-2 ${
+                    f.status === 'new' ? 'border-sky-300 bg-sky-50/60' : 'border-slate-200 bg-slate-50'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="bg-sky-700 text-white text-xs font-black px-2 py-0.5 rounded-full">
+                      {f.kind === 'suggestion' ? 'اقتراح' : f.kind === 'problem' ? 'مشكلة تقنية' : 'رسالة'}
+                    </span>
+                    <span className="font-black text-slate-900">{f.name || 'زائر بدون اسم'}</span>
+                    {f.email && (
+                      <a href={`mailto:${f.email}`} dir="ltr" className="text-sky-800 underline">
+                        {f.email}
+                      </a>
+                    )}
+                    <span className="text-xs text-slate-400">{formatDate(f.createdAt, true)}</span>
+                    {f.senderUid && <span className="text-xs text-emerald-700 font-bold">(مستخدم مسجل)</span>}
+                  </div>
+                  <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{f.message}</p>
+                  <div className="flex gap-2">
+                    {f.status === 'new' ? (
+                      <button
+                        onClick={() => onFeedbackHandled(f.id)}
+                        className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs cursor-pointer"
+                      >
+                        ✓ تمت المعالجة
+                      </button>
+                    ) : (
+                      <span className="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-xs">تمت المعالجة ✓</span>
+                    )}
+                    <button
+                      onClick={() => onDeleteFeedback(f.id)}
+                      className="text-red-600 hover:bg-red-50 font-bold px-3 py-1.5 rounded-xl text-xs cursor-pointer flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      حذف
+                    </button>
                   </div>
                 </div>
               ))}

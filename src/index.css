@@ -93,3 +93,50 @@
     radial-gradient(90% 60% at 50% 100%, #0f3b38 0%, transparent 70%);
   background-size: 320px 220px, 320px 220px, 320px 220px, 320px 220px, 320px 220px, 100% 100%, 100% 100%;
 }
+
+/*
+ * "Liquid glass" surfaces (Apple-style): strong blur + saturation, a soft diagonal sheen,
+ * a bright top edge and a faint inner glow. Use on top of colour or photos.
+ */
+.glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 60%, rgba(255, 255, 255, 0.12));
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 24px rgba(255, 255, 255, 0.06),
+    0 10px 40px rgba(2, 12, 20, 0.35);
+}
+
+/* Lighter, more opaque glass for primary buttons and the phone navigation bar. */
+.glass-light {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    0 8px 30px rgba(2, 12, 20, 0.25);
+}
+
+/* Glass card that keeps its own colour gradient underneath (home cards, page banners). */
+.glass-card {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 40px rgba(255, 255, 255, 0.07),
+    0 20px 50px rgba(2, 12, 20, 0.35);
+}
+.glass-card::before {
+  /* Sheen across the top of the card */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 28%, transparent 45%);
+  pointer-events: none;
+  z-index: 1;
+}
